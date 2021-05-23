@@ -18,12 +18,14 @@ A0 10 02
 A0 20 03 00 05
 A0 30 03 12 34
 A0 5F 04 00 0A
+A0 0F 00 00 00
 81 44
 82 55
 90 66
 00
 # tabela simbola
 ime	sekcija	vr	vidlj	rBr
+smth	UND	0	global	8
 LF	ABS	10	local	7
 tmp	ABS	65280	local	6
 start	start	0	local	5
@@ -31,6 +33,10 @@ c	test	8	local	4
 b	test	8	local	3
 a	test	8	local	2
 test	test	0	local	1
+UND	UND	0		0
+# rel.start
+offset	tip	rbr
+54	abs	8
 # rel.test
 offset	tip	rbr
 0	abs	5

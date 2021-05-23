@@ -55,6 +55,7 @@ int Assembly::parseDirectiveFirstPass(ParserResult *res)
             if (symtab.find(symbol) == symtab.end())
             {
                 symtab[symbol].initSymbol(symbol, SymType::GLOBALSYM, index_gen++);
+                symtab[symbol].section = undefined_section;
             }
             else
             {
@@ -62,7 +63,7 @@ int Assembly::parseDirectiveFirstPass(ParserResult *res)
             }
             if (res->dir->type == DirectiveType::EXTERN)
             {
-                symtab[symbol].section = "UND";
+                symtab[symbol].section = undefined_section;
             }
         }
     }
