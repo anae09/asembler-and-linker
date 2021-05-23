@@ -1,6 +1,7 @@
 #include "assembly.hpp"
 
 unsigned int Assembly::index_gen = 1;
+std::string Assembly::undefined_section = "UND";
 
 Assembly::Assembly(std::string inputFilename, std::string outputFilename)
 {
@@ -15,6 +16,9 @@ Assembly::Assembly(std::string inputFilename, std::string outputFilename)
     {
         std::cout << "File not created!" << std::endl;
     }
+    /* Initialize symbol table */
+    symtab[undefined_section].initSymbol(undefined_section, undefined_section, 0, SymType::NOSYMTYPE, 0, 0, true);
+    
 }
 
 int Assembly::checkGlobals()
@@ -196,7 +200,7 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
             {
                 if (symtab.find(arg) == symtab.end())
                 {
-                    symtab[arg].initSymbol(arg, "", index_gen++, SymType::LOCALSYM);
+                    symtab[arg].initSymbol(arg, undefined_section, index_gen++, SymType::GLOBALSYM);
                 }
                 if (!symtab[arg].section.compare("ABS"))
                 {
@@ -263,7 +267,7 @@ void Assembly::generateRelocEntry(ParserResult *res)
     RelocationEntry entry;
     if (symtab.find(res->symbol) == symtab.end())
     {
-        symtab[res->symbol].initSymbol(res->symbol, "", index_gen++, SymType::LOCALSYM);
+        symtab[res->symbol].initSymbol(res->symbol, undefined_section, index_gen++, SymType::GLOBALSYM);
     }
     if (res->stm->reloc_type == RelocType::ABSOLUTE)
     {

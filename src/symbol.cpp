@@ -2,7 +2,7 @@
 
 std::ostream& operator<<(std::ostream& os, const Symbol& symbol) {
     os << symbol.name << "\t" << symbol.section << "\t" << symbol.offset << "\t"
-    << (symbol.type == SymType::GLOBALSYM ? "global" : "local") << "\t" << symbol.index;
+    << (symbol.type == SymType::GLOBALSYM ? "global" : (symbol.type == SymType::LOCALSYM? "local" : "")) << "\t" << symbol.index;
     return os;
 }
 

@@ -2,5 +2,6 @@
 
 enum SymType {
     GLOBALSYM = 200,
-    LOCALSYM
+    LOCALSYM,
+    NOSYMTYPE
 };

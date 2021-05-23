@@ -19,7 +19,7 @@ private:
     std::unordered_map<std::string, std::list<struct RelocationEntry>> reloctab;
 
     static unsigned int index_gen;
-    static const int UNDEF = 0;
+    static std::string undefined_section;
     static const int WORD_SIZE = 2;
     static const int PAYLOAD_SIZE = 2;
     unsigned int locationCounter = 0;
