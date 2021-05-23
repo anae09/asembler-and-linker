@@ -61,10 +61,10 @@ int Assembly::parseDirectiveFirstPass(ParserResult *res)
             {
                 symtab[symbol].type = SymType::GLOBALSYM;
             }
-            if (res->dir->type == DirectiveType::EXTERN)
-            {
-                symtab[symbol].section = undefined_section;
-            }
+            // if (res->dir->type == DirectiveType::EXTERN)
+            // {
+            //     symtab[symbol].section = undefined_section;
+            // }
         }
     }
     else if (res->dir->type == DirectiveType::SECTION)
