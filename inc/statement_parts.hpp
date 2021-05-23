@@ -13,5 +13,7 @@ struct StatementParts {
 
     void setDataZero();
     void setDataPCRel();
+    void setDataX();
+    
     friend std::ostream& operator<<(std::ostream& os, const StatementParts* stm);
 };

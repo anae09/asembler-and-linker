@@ -224,10 +224,7 @@ void Parser::parseOperand(ParserResult *res, std::string arg)
         { // symbol
             res->stm->reloc_type = RelocType::ABSOLUTE;
             res->symbol = arg;
-            res->stm->dataHigh[1] = 'X';
-            res->stm->dataHigh[0] = 'X';
-            res->stm->dataLow[1] = 'X';
-            res->stm->dataLow[0] = 'X';
+            res->stm->setDataX();
         }
     }
     else if (regex_match(arg, re_memdir)) // MEM-PC
@@ -237,10 +234,7 @@ void Parser::parseOperand(ParserResult *res, std::string arg)
         res->stm->addrMode[1] = '0';
         res->stm->reloc_type = RelocType::RELATIVE;
         res->symbol = std::regex_replace(arg, std::regex("%"), "");
-        res->stm->dataHigh[1] = 'X';
-        res->stm->dataHigh[0] = 'X';
-        res->stm->dataLow[1] = 'X';
-        res->stm->dataLow[0] = 'X';
+        res->stm->setDataX();
     }
     else if (regex_match(arg, re_regdir)) // REGDIR
     {
@@ -281,10 +275,7 @@ void Parser::parseOperand(ParserResult *res, std::string arg)
             { // symbol
                 res->stm->reloc_type = RelocType::ABSOLUTE;
                 res->symbol = tmp;
-                res->stm->dataHigh[1] = 'X';
-                res->stm->dataHigh[0] = 'X';
-                res->stm->dataLow[1] = 'X';
-                res->stm->dataLow[0] = 'X';
+                res->stm->setDataX();
             }
         }
     }
@@ -301,10 +292,7 @@ void Parser::parseOperand(ParserResult *res, std::string arg)
         { // symbol
             res->stm->reloc_type = RelocType::ABSOLUTE;
             res->symbol = arg;
-            res->stm->dataHigh[1] = 'X';
-            res->stm->dataHigh[0] = 'X';
-            res->stm->dataLow[1] = 'X';
-            res->stm->dataLow[0] = 'X';
+            res->stm->setDataX();
         }
     }
 }
@@ -351,10 +339,7 @@ void Parser::parseJumpOperand(ParserResult *res, std::string arg)
             { // symbol
                 res->stm->reloc_type = RelocType::ABSOLUTE;
                 res->symbol = tmp;
-                res->stm->dataHigh[1] = 'X';
-                res->stm->dataHigh[0] = 'X';
-                res->stm->dataLow[1] = 'X';
-                res->stm->dataLow[0] = 'X';
+                res->stm->setDataX();
             }
         }
     }
@@ -372,10 +357,7 @@ void Parser::parseJumpOperand(ParserResult *res, std::string arg)
         { // symbol
             res->stm->reloc_type = RelocType::ABSOLUTE;
             res->symbol = arg;
-            res->stm->dataHigh[1] = 'X';
-            res->stm->dataHigh[0] = 'X';
-            res->stm->dataLow[1] = 'X';
-            res->stm->dataLow[0] = 'X';
+            res->stm->setDataX();
         }
     }
     else if (regex_match(arg, re_jmp_memdir_pc))
@@ -385,10 +367,7 @@ void Parser::parseJumpOperand(ParserResult *res, std::string arg)
         res->stm->addrMode[1] = '0';
         res->stm->reloc_type = RelocType::RELATIVE;
         res->symbol = std::regex_replace(arg, std::regex("%"), "");
-        res->stm->dataHigh[1] = 'X';
-        res->stm->dataHigh[0] = 'X';
-        res->stm->dataLow[1] = 'X';
-        res->stm->dataLow[0] = 'X';
+        res->stm->setDataX();
     }
     else
     { // immediate
@@ -403,10 +382,7 @@ void Parser::parseJumpOperand(ParserResult *res, std::string arg)
         { // symbol
             res->stm->reloc_type = RelocType::ABSOLUTE;
             res->symbol = arg;
-            res->stm->dataHigh[1] = 'X';
-            res->stm->dataHigh[0] = 'X';
-            res->stm->dataLow[1] = 'X';
-            res->stm->dataLow[0] = 'X';
+            res->stm->setDataX();
         }
     }
 }

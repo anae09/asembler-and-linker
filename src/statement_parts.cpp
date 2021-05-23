@@ -30,3 +30,10 @@ void StatementParts::setDataPCRel() {
     dataLow[1] = 'F';
     dataLow[0] = 'E';
 }
+
+void StatementParts::setDataX() {
+    dataHigh[1] = 'X';
+    dataHigh[0] = 'X';
+    dataLow[1] = 'X';
+    dataLow[0] = 'X';
+}
