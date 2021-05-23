@@ -1,0 +1,41 @@
+# text
+50 FF 00 FF FE
+50 FF 00 00 06
+50 FF 00 FF FE
+50 FF 00 FF FE
+00 14 
+A0 0F 04 00 00
+B0 0F 04 00 00
+A0 0F 04 00 08
+# data
+00 00 00 00 00 00 00 00 
+00 00 00 00 
+00 00 
+00 00 
+# bss
+00 00 00 00 00 00 00 00 
+# tabela simbola
+ime	sekcija	vr	vidlj	rBr
+bss	bss	0	local	8
+e	data	8	local	7
+data	data	0	local	6
+text	text	0	local	4
+b	UND	0	global	3
+c	bss	0	global	2
+d	text	20	local	5
+a	data	14	global	1
+# rel.data
+offset	tip	rbr
+8	abs	1
+10	abs	2
+12	abs	8
+14	abs	3
+# rel.text
+offset	tip	rbr
+3	rel	1
+8	rel	6
+13	rel	3
+20	abs	4
+25	abs	3
+30	abs	2
+35	abs	6

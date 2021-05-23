@@ -1,0 +1,20 @@
+# text
+30 FF 04 00 00
+00 16
+00
+# data
+00 11
+# bss
+00 00 00 00 
+# tabela simbola
+ime	sekcija	vr	vidlj	rBr
+bss	bss	0	local	7
+data	data	0	local	6
+text	text	0	local	5
+e	UND	0	global	4
+c	ABS	4	global	3
+b	ABS	1	global	2
+a	ABS	2	global	1
+# rel.text
+offset	tip	rbr
+3	abs	4

@@ -1,0 +1,23 @@
+# text
+A0 0F 04 00 00
+A0 1F 04 00 00
+70 01
+00
+# data
+00 00 00 05 
+00 00 00 06 
+# tabela simbola
+ime	sekcija	vr	vidlj	rBr
+b		0	local	5
+a		0	local	4
+data	data	0	local	3
+main	text	0	local	2
+text	text	0	local	1
+# rel.data
+offset	tip	rbr
+0	abs	3
+4	abs	3
+# rel.text
+offset	tip	rbr
+3	abs	1
+8	abs	1

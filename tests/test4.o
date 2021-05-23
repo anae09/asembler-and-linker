@@ -1,0 +1,21 @@
+# test
+00 00 
+00 08 
+00 08 
+00 08 
+20
+# start
+00
+# tabela simbola
+ime	sekcija	vr	vidlj	rBr
+start	start	0	local	5
+c	test	8	local	4
+b	test	8	local	3
+a	test	8	local	2
+test	test	0	local	1
+# rel.test
+offset	tip	rbr
+0	abs	5
+2	abs	1
+4	abs	1
+6	abs	1

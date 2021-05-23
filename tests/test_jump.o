@@ -1,0 +1,27 @@
+# start
+51 FF 00 00 14
+52 FF 00 FF F6
+52 FF 00 FF FE
+50 FF 00 00 55
+53 FF 04 00 00
+53 FF 04 00 66
+50 F0 01
+50 F1 02
+50 F1 03 12 34
+50 F2 03 00 0A
+50 F3 03 00 00
+# data
+FF FF 
+# tabela simbola
+ime	sekcija	vr	vidlj	rBr
+b	start	20	local	3
+d	data	0	local	5
+a	start	0	local	2
+data	data	0	local	4
+start	start	0	local	1
+# rel.start
+offset	tip	rbr
+3	abs	1
+13	rel	4
+23	abs	1
+49	abs	1

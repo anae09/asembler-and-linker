@@ -1,0 +1,12 @@
+# text
+00 00 
+50 FF 00 00 02
+50 FF 00 FF FE
+# tabela simbola
+ime	sekcija	vr	vidlj	rBr
+text	text	0	local	4
+b	ABS	2	local	3
+a	ABS	2	local	2
+# rel.text
+offset	tip	rbr
+10	rel	3

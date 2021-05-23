@@ -1,0 +1,8 @@
+# test
+00 00 00 00 00 00 00 00 
+# tabela simbola
+ime	sekcija	vr	vidlj	rBr
+test	test	0	local	4
+c	test	0	global	3
+b	test	0	global	2
+a	test	0	global	1

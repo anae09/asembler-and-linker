@@ -1,0 +1,39 @@
+# test
+00 00 
+00 08 
+00 08 
+00 08 
+20
+# start
+A0 0F 00 00 05
+A0 1F 00 00 06
+A0 2F 00 00 07
+A0 3F 00 00 08
+70 02
+71 23
+72 13
+73 33
+A0 0F 00 FF 00
+A0 10 02
+A0 20 03 00 05
+A0 30 03 12 34
+A0 5F 04 00 0A
+81 44
+82 55
+90 66
+00
+# tabela simbola
+ime	sekcija	vr	vidlj	rBr
+LF	ABS	10	local	7
+tmp	ABS	65280	local	6
+start	start	0	local	5
+c	test	8	local	4
+b	test	8	local	3
+a	test	8	local	2
+test	test	0	local	1
+# rel.test
+offset	tip	rbr
+0	abs	5
+2	abs	1
+4	abs	1
+6	abs	1
