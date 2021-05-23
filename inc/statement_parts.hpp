@@ -10,5 +10,8 @@ struct StatementParts {
     char dataHigh[2];
     char dataLow[2];
     RelocType reloc_type = RelocType::NONE;
+
+    void setDataZero();
+    void setDataPCRel();
     friend std::ostream& operator<<(std::ostream& os, const StatementParts* stm);
 };

@@ -17,3 +17,16 @@ std::ostream& operator<<(std::ostream& os, const StatementParts* stm){
     }
     return os;
 }
+
+void StatementParts::setDataZero() {
+    dataHigh[1] = '0';
+    dataHigh[0] = '0';
+    dataLow[1] = '0';
+    dataLow[0] = '0';
+}
+void StatementParts::setDataPCRel() {
+    dataHigh[1] = 'F';
+    dataHigh[0] = 'F';
+    dataLow[1] = 'F';
+    dataLow[0] = 'E';
+}

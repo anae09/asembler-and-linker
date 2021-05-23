@@ -1,9 +1,9 @@
 # text
 30 FF 04 00 00
-00 16
+00 16 
 00
 # data
-00 11
+00 11 
 # bss
 00 00 00 00 
 # tabela simbola
@@ -15,6 +15,7 @@ e	UND	0	global	4
 c	ABS	4	global	3
 b	ABS	1	global	2
 a	ABS	2	global	1
+UND	UND	0		0
 # rel.text
 offset	tip	rbr
 3	abs	4

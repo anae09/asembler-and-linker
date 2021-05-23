@@ -2,6 +2,7 @@
 
 unsigned int Assembly::index_gen = 1;
 std::string Assembly::undefined_section = "UND";
+std::string Assembly::absolute_section = "ABS";
 
 Assembly::Assembly(std::string inputFilename, std::string outputFilename)
 {
@@ -16,25 +17,7 @@ Assembly::Assembly(std::string inputFilename, std::string outputFilename)
     {
         std::cout << "File not created!" << std::endl;
     }
-    /* Initialize symbol table */
     symtab[undefined_section].initSymbol(undefined_section, undefined_section, 0, SymType::NOSYMTYPE, 0, 0, true);
-    
-}
-
-int Assembly::checkGlobals()
-{
-    std::unordered_map<std::string, struct Symbol>::iterator iter;
-    for (iter = symtab.begin(); iter != symtab.end(); iter++)
-    {
-        if (iter->second.type == SymType::GLOBALSYM && iter->second.section.empty())
-        {
-            std::cout << "Error: "
-                      << " symbol [" << iter->second.name << "]"
-                      << " is undefined!" << std::endl;
-            return -1;
-        }
-    }
-    return 0;
 }
 
 int Assembly::parseDirectiveFirstPass(ParserResult *res)
@@ -54,17 +37,12 @@ int Assembly::parseDirectiveFirstPass(ParserResult *res)
         {
             if (symtab.find(symbol) == symtab.end())
             {
-                symtab[symbol].initSymbol(symbol, SymType::GLOBALSYM, index_gen++);
-                symtab[symbol].section = undefined_section;
+                symtab[symbol].initSymbol(symbol, undefined_section, index_gen++, SymType::GLOBALSYM, 0, 0, false);
             }
             else
             {
                 symtab[symbol].type = SymType::GLOBALSYM;
             }
-            // if (res->dir->type == DirectiveType::EXTERN)
-            // {
-            //     symtab[symbol].section = undefined_section;
-            // }
         }
     }
     else if (res->dir->type == DirectiveType::SECTION)
@@ -75,15 +53,8 @@ int Assembly::parseDirectiveFirstPass(ParserResult *res)
         }
         locationCounter = 0;
         currentSection = res->dir->args.front();
-        if (symtab[currentSection].section.empty())
-        {
-            symtab[currentSection].initSymbol(currentSection, currentSection, index_gen++, SymType::LOCALSYM, 0, 0U, true);
-        }
-        else
-        {
-            std::cout << "Error: Symbol " << currentSection << " already defined!" << std::endl;
-            exit(-3);
-        }
+
+        addToSymbolTable(currentSection, currentSection, SymType::LOCALSYM, 0, true);
     }
     else if (res->dir->type == DirectiveType::EQU)
     {
@@ -91,20 +62,8 @@ int Assembly::parseDirectiveFirstPass(ParserResult *res)
         res->dir->args.pop_front();
         std::string literal = res->dir->args.front();
         int literalValue = Parser::getInstance()->getLiteralValue(literal);
-        if (symtab.find(symbol_name) == symtab.end())
-        {
-            symtab[symbol_name].initSymbol(symbol_name, "ABS", index_gen++, SymType::LOCALSYM, literalValue);
-        }
-        else if (!symtab[symbol_name].section.empty())
-        {
-            std::cout << "Error: Symbol " << symbol_name << " already defined!" << std::endl;
-            exit(-3);
-        }
-        else
-        { // section not defined, but is in symbol table; maybe global
-            symtab[symbol_name].section = "ABS";
-            symtab[symbol_name].offset = literalValue;
-        }
+
+        addToSymbolTable(symbol_name, absolute_section, SymType::LOCALSYM, literalValue, false);
     }
     else if (res->dir->type == DirectiveType::WORD)
     {
@@ -136,21 +95,8 @@ int Assembly::checkResult(ParserResult *res, std::string line)
     resultList.push_back(res);
     if (res->type == ParseType::LABEL)
     {
-        if (symtab.find(res->symbol) == symtab.end())
-        {
-            symtab[res->symbol].initSymbol(res->symbol, currentSection, index_gen++, SymType::LOCALSYM, locationCounter);
-        }
-        else if (symtab[res->symbol].section.empty())
-        {
-            symtab[res->symbol].offset = locationCounter;
-            symtab[res->symbol].section = currentSection;
-        }
-        else
-        {
-            std::cout << "Error in line: " << line << std::endl;
-            std::cout << "Symbol " << res->symbol << " already defined!" << std::endl;
-            exit(-3);
-        }
+
+        addToSymbolTable(res->symbol, currentSection, SymType::LOCALSYM, locationCounter, false);
 
         res = Parser::getInstance()->parse(line, true);
         if (res)
@@ -200,21 +146,12 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
             if (Parser::getInstance()->isSymbol(arg))
             {
                 if (symtab.find(arg) == symtab.end())
-                {
                     symtab[arg].initSymbol(arg, undefined_section, index_gen++, SymType::GLOBALSYM);
-                }
+
                 if (!symtab[arg].section.compare("ABS"))
                 {
                     std::string hexValue = Parser::getInstance()->literalToHex(symtab[arg].offset);
-                    for (int i = 3; i >= 0; i--)
-                    {
-                        if (i == 1)
-                            output << " ";
-                        if (i < hexValue.length())
-                            output << hexValue[hexValue.length() - 1 - i];
-                        else
-                            output << "0";
-                    }
+                    outputHex(hexValue);
                     continue;
                 }
                 RelocationEntry entry;
@@ -229,32 +166,14 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
                     // output {symbolOFfset}
                     entry.initEntry(locationCounter, symtab[symtab[arg].section].index, RelocType::ABSOLUTE);
                     std::string hexValue = Parser::getInstance()->literalToHex(symtab[arg].offset);
-                    for (int i = 3; i >= 0; i--)
-                    {
-                        if (i == 1)
-                            output << " ";
-                        if (i < hexValue.length())
-                            output << hexValue[hexValue.length() - 1 - i];
-                        else
-                            output << "0";
-                    }
-                    output << " ";
+                    outputHex(hexValue);
                 }
                 reloctab[currentSection].push_back(entry);
             }
             else
             {
                 std::string hexValue = Parser::getInstance()->literalToHex(arg);
-                for (int i = 3; i >= 0; i--)
-                {
-                    if (i == 1)
-                        output << " ";
-                    if (i < hexValue.length())
-                        output << hexValue[hexValue.length() - 1 - i];
-                    else
-                        output << "0";
-                }
-                output << " ";
+                outputHex(hexValue);
             }
             locationCounter += WORD_SIZE;
         }
@@ -285,10 +204,7 @@ void Assembly::generateRelocEntry(ParserResult *res)
         else // GLOBALSYM
         {
             entry.initEntry(locationCounter - PAYLOAD_SIZE, symtab[res->symbol].index, RelocType::ABSOLUTE);
-            res->stm->dataHigh[1] = '0';
-            res->stm->dataHigh[0] = '0';
-            res->stm->dataLow[1] = '0';
-            res->stm->dataLow[0] = '0';
+            res->stm->setDataZero();
         }
     }
     else // PC_REL
@@ -296,10 +212,7 @@ void Assembly::generateRelocEntry(ParserResult *res)
         if (symtab[res->symbol].type == SymType::GLOBALSYM || !symtab[res->symbol].section.compare("ABS")) // GLOBALSYM
         {
             entry.initEntry(locationCounter - PAYLOAD_SIZE, symtab[res->symbol].index, RelocType::RELATIVE);
-            res->stm->dataHigh[1] = 'F';
-            res->stm->dataHigh[0] = 'F';
-            res->stm->dataLow[1] = 'F';
-            res->stm->dataLow[0] = 'E';
+            res->stm->setDataPCRel();
         }
         else // LOCALSYM
         {
@@ -331,11 +244,12 @@ int Assembly::assemble()
             continue;
         // std::cout << line << std::endl;
         res = Parser::getInstance()->parse(line);
-        if (!res) {
-            std::cout << "Error in line: " << line << "; couldn't parse" << std::endl; 
+        if (!res)
+        {
+            std::cout << "Error in line: " << line << "; couldn't parse" << std::endl;
             return -1;
         }
-            
+
         if (checkResult(res, line))
         {
             end_defined = true;
@@ -350,9 +264,6 @@ int Assembly::assemble()
     }
 
     printSymbolTable();
-
-    // if (checkGlobals() < 0)
-    //     exit(-4);
 
     /* SECOND PASS */
 
@@ -383,6 +294,38 @@ int Assembly::assemble()
     printRelocTable();
 
     return 0;
+}
+
+void Assembly::addToSymbolTable(std::string name, std::string section, SymType type, int offset, bool is_section)
+{
+    if (symtab.find(name) == symtab.end())
+    {
+        symtab[name].initSymbol(name, section, index_gen++, type, offset, 0, is_section);
+    }
+    else if (!symtab[name].section.compare(undefined_section))
+    {
+        symtab[name].section = section;
+        symtab[name].offset = offset;
+    }
+    else
+    {
+        std::cout << "Error: Symbol " << name << " already defined" << std::endl;
+        exit(-3);
+    }
+}
+
+void Assembly::outputHex(std::string hexValue)
+{
+    for (int i = 3; i >= 0; i--)
+    {
+        if (i == 1)
+            output << " ";
+        if (i < hexValue.length())
+            output << hexValue[hexValue.length() - 1 - i];
+        else
+            output << "0";
+    }
+    output << " ";
 }
 
 void Assembly::printSymbolTable()
@@ -475,3 +418,4 @@ Assembly::~Assembly()
     }
     resultList.clear();
 }
+
