@@ -18,4 +18,4 @@ a	ABS	2	global	1
 UND	UND	0		0
 # rel.text
 offset	tip	rbr
-3	abs	4
+3	R_16	4
