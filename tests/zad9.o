@@ -27,16 +27,16 @@ a	data	14	global	1
 UND	UND	0		0
 # rel.data
 offset	tip	rbr
-8	abs	1
-10	abs	2
-12	abs	8
-14	abs	3
+8	R_16	1
+10	R_16	2
+12	R_16	8
+14	R_16	3
 # rel.text
 offset	tip	rbr
-3	rel	1
-8	rel	6
-13	rel	3
-20	abs	4
-25	abs	3
-30	abs	2
-35	abs	6
+3	R_PC16	1
+8	R_PC16	6
+13	R_PC16	3
+20	R_16	4
+25	R_16	3
+30	R_16	2
+35	R_16	6

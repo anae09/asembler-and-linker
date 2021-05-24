@@ -5,7 +5,7 @@ SRC     := src
 INCLUDE := inc
 
 LIBRARIES   :=
-EXECUTABLE  := main
+EXECUTABLE  := asembler
 
 
 all: $(EXECUTABLE)
