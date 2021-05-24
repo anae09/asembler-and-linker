@@ -1,8 +1,12 @@
+.extern f
+
 .section start
 a:
 jeq b # neposredno adr, relok. zapis APS
 jne %a # lokalni + PCREL -> nema relok zapisa
 jne %d
+
+jne %f
 jmp 0x55
 b:
 jgt *start

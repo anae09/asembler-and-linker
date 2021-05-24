@@ -4,5 +4,6 @@
 00 00 00 
 # tabela simbola
 ime	sekcija	vr	vidlj	rBr
-second	second	0	local	2
 first	first	0	local	1
+second	second	0	local	2
+UND	UND	0		0

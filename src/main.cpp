@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[])
 {
-    Assembly as("tests/test1.s", "tests/test1.o");
+    Assembly as("tests/zad9.s", "tests/zad9.o");
     if (!as.assemble()) 
         std::cout << "Success" << std::endl;
     

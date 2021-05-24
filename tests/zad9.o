@@ -2,7 +2,7 @@
 50 FF 00 FF FE
 50 FF 00 00 06
 50 FF 00 FF FE
-50 FF 00 FF FE
+50 FF 00 00 00
 00 14 
 A0 0F 04 00 00
 B0 0F 04 00 00
@@ -24,6 +24,7 @@ b	UND	0	global	3
 c	bss	0	global	2
 d	text	20	local	5
 a	data	14	global	1
+UND	UND	0		0
 # rel.data
 offset	tip	rbr
 8	abs	1
