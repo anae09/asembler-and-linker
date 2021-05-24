@@ -1,0 +1,10 @@
+# test
+00 00 00 00 00 
+# tabela simbola
+ime	sekcija	vr	vidlj	rBr
+test	test	0	local	4
+c	UND	0	global	3
+b	UND	0	global	2
+d	UND	0	global	5
+a	UND	0	global	1
+UND	UND	0		0
