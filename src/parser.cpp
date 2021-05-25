@@ -387,7 +387,7 @@ void Parser::parseJumpOperand(ParserResult *res, std::string arg)
     }
 }
 
-void Parser::parseInstruction(struct InstrEntry entry, struct ParserResult *res, std::string &token)
+int Parser::parseInstruction(struct InstrEntry entry, struct ParserResult *res, std::string &token)
 {
     StatementParts *p = new StatementParts();
     p->intrDescr[1] = entry.instrDescr[0];
@@ -429,10 +429,9 @@ void Parser::parseInstruction(struct InstrEntry entry, struct ParserResult *res,
         parseJumpOperand(res, token);
         break;
     default:
-        std::cout << "Undefined instruction type" << std::endl;
-        exit(-1);
-        break;
+        return 1;
     }
+    return 0;
 }
 
 ParserResult *Parser::parse(std::string line, bool checkAfterLabel)
@@ -497,7 +496,9 @@ ParserResult *Parser::parse(std::string line, bool checkAfterLabel)
             delete res;
             return nullptr;
         }
-        parseInstruction(instructions[tokens[0]], res, tokens[1]);
+        if(parseInstruction(instructions[tokens[0]], res, tokens[1])) {
+            std::cout << "Error in line: " << line << "; undefined instruction" << std::endl;
+        }
     }
     else if (!tokens[0].compare("push"))
     {

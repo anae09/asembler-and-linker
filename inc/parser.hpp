@@ -56,7 +56,7 @@ private:
     const char empty_slot = 'F';
 
     void init_instructions_map();
-    void parseInstruction(struct InstrEntry entry, struct ParserResult* res, std::string& args);
+    int parseInstruction(struct InstrEntry entry, struct ParserResult* res, std::string& args);
     void parseOperand(ParserResult* res, std::string arg);
     void parseJumpOperand(ParserResult* res, std::string arg);
     void parseLiteral(ParserResult* res, std::string arg);
