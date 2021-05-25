@@ -144,8 +144,11 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
         {
             if (Parser::getInstance()->isSymbol(arg))
             {
-                if (symtab.find(arg) == symtab.end())
-                    symtab[arg].initSymbol(arg, undefined_section, SymType::GLOBALSYM);
+                if (symtab.find(arg) == symtab.end()) {
+                    std::cout << "ERROR: Local symbol " << arg << " is undefined" << std::endl;
+                    exit(-2);
+                }
+                    // symtab[arg].initSymbol(arg, undefined_section, SymType::GLOBALSYM);
 
                 if (!symtab[arg].section.compare("ABS"))
                 {
@@ -186,7 +189,9 @@ void Assembly::generateRelocEntry(ParserResult *res)
     RelocationEntry entry;
     if (symtab.find(res->symbol) == symtab.end())
     {
-        symtab[res->symbol].initSymbol(res->symbol, undefined_section, SymType::GLOBALSYM);
+        std::cout << "ERROR: Local symbol " << res->symbol << " is undefined" << std::endl;
+        exit(-2);
+        // symtab[res->symbol].initSymbol(res->symbol, undefined_section, SymType::GLOBALSYM);
     }
     if (res->stm->reloc_type == RelocType::ABSOLUTE)
     {

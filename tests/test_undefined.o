@@ -1,15 +1,1 @@
 # test
-00 00 00 00 00 00 
-# tabela simbola
-ime	sekcija	vr	vidlj	rBr
-c	UND	0	global	5
-b	UND	0	global	4
-test	test	0	local	2
-a	UND	0	global	3
-d	UND	0	global	1
-UND	UND	0		0
-# rel.test
-offset	tip	rbr
-0	abs	3
-2	abs	4
-4	abs	5
