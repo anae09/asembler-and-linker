@@ -18,7 +18,6 @@ private:
     std::unordered_map<std::string,struct Symbol> symtab;
     std::unordered_map<std::string, std::list<struct RelocationEntry>> reloctab;
 
-    static unsigned int index_gen;
     static std::string undefined_section;
     static std::string absolute_section;
     static const int WORD_SIZE = 2;

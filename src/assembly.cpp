@@ -1,6 +1,5 @@
 #include "assembly.hpp"
 
-unsigned int Assembly::index_gen = 1;
 std::string Assembly::undefined_section = "UND";
 std::string Assembly::absolute_section = "ABS";
 
@@ -17,7 +16,7 @@ Assembly::Assembly(std::string inputFilename, std::string outputFilename)
     {
         std::cout << "File not created!" << std::endl;
     }
-    symtab[undefined_section].initSymbol(undefined_section, undefined_section, 0, SymType::NOSYMTYPE, 0, 0, true);
+    symtab[undefined_section].initSymbol(undefined_section, undefined_section, SymType::NOSYMTYPE, 0, 0, true);
 }
 
 int Assembly::parseDirectiveFirstPass(ParserResult *res)
@@ -37,7 +36,7 @@ int Assembly::parseDirectiveFirstPass(ParserResult *res)
         {
             if (symtab.find(symbol) == symtab.end())
             {
-                symtab[symbol].initSymbol(symbol, undefined_section, index_gen++, SymType::GLOBALSYM, 0, 0, false);
+                symtab[symbol].initSymbol(symbol, undefined_section, SymType::GLOBALSYM, 0, 0, false);
             }
             else
             {
@@ -146,7 +145,7 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
             if (Parser::getInstance()->isSymbol(arg))
             {
                 if (symtab.find(arg) == symtab.end())
-                    symtab[arg].initSymbol(arg, undefined_section, index_gen++, SymType::GLOBALSYM);
+                    symtab[arg].initSymbol(arg, undefined_section, SymType::GLOBALSYM);
 
                 if (!symtab[arg].section.compare("ABS"))
                 {
@@ -187,7 +186,7 @@ void Assembly::generateRelocEntry(ParserResult *res)
     RelocationEntry entry;
     if (symtab.find(res->symbol) == symtab.end())
     {
-        symtab[res->symbol].initSymbol(res->symbol, undefined_section, index_gen++, SymType::GLOBALSYM);
+        symtab[res->symbol].initSymbol(res->symbol, undefined_section, SymType::GLOBALSYM);
     }
     if (res->stm->reloc_type == RelocType::ABSOLUTE)
     {
@@ -300,7 +299,7 @@ void Assembly::addToSymbolTable(std::string name, std::string section, SymType t
 {
     if (symtab.find(name) == symtab.end())
     {
-        symtab[name].initSymbol(name, section, index_gen++, type, offset, 0, is_section);
+        symtab[name].initSymbol(name, section, type, offset, 0, is_section);
     }
     else if (!symtab[name].section.compare(undefined_section))
     {
@@ -339,8 +338,7 @@ void Assembly::printSymbolTable()
               << "vr"
               << "\t"
               << "vidlj"
-              << "\t"
-              << "rBr" << std::endl;
+              << std::endl;
     for (iter = symtab.begin(); iter != symtab.end(); iter++)
     {
         std::cout << iter->second << std::endl;
@@ -358,8 +356,7 @@ void Assembly::outputSymbolTable()
            << "vr"
            << "\t"
            << "vidlj"
-           << "\t"
-           << "rBr" << std::endl;
+           << std::endl;
     for (iter = symtab.begin(); iter != symtab.end(); iter++)
     {
         output << iter->second << std::endl;

@@ -6,11 +6,11 @@
 56 78 
 F8 F8 
 # tabela simbola
-ime	sekcija	vr	vidlj	rBr
-lbl1	wtest	4	local	3
-lbl0	wtest	0	local	2
-wtest	wtest	0	local	1
-UND	UND	0		0
+ime	sekcija	vr	vidlj
+lbl1	wtest	4	L
+lbl0	wtest	0	L
+wtest	wtest	0	L
+UND	UND	0	
 # rel.wtest
 offset	tip	simbol
 6	R_16	wtest
