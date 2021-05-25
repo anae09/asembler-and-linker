@@ -5,8 +5,8 @@
 
 struct RelocationEntry {
     int offset;
-    int index;
+    std::string symbol;
     RelocType type;
-    void initEntry(int offset, int index, RelocType type);
+    void initEntry(int offset, std::string symbol, RelocType type);
     friend std::ostream& operator<<(std::ostream& os, const RelocationEntry& entry);
 };
