@@ -12,6 +12,7 @@
 ./asembler -o test_skip.o test_skip.s
 ./asembler -o test_undefined.o test_undefined.s
 ./asembler -o test_word.o test_word.s
+./asembler -o test_pushpop.o test_pushpop.s
 ./asembler -o test1.o test1.s
 ./asembler -o test2.o test2.s
 ./asembler -o test3.o test3.s

@@ -129,12 +129,12 @@ DirectiveType Parser::parseDirective(std::string dir)
 
 char Parser::parseRegister(std::string &reg, std::string& line)
 {
-    // if (!reg.compare("sp"))
-    //     return '6';
-    // if (!reg.compare("pc"))
-    //     return '7';
-    // if (!reg.compare("psw"))
-    //     return '8';
+    if (!reg.compare("sp"))
+        return '6';
+    if (!reg.compare("pc"))
+        return '7';
+    if (!reg.compare("psw"))
+        return '8';
     if (reg[0] == 'r'){
         if (reg.size() > 2 || reg[1] > '8') {
             std::cout << "Error in line: " << line << "; undefined register: " << reg << std::endl;
