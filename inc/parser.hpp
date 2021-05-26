@@ -65,9 +65,9 @@ public:
     void operator=(const Parser &) = delete;
     static Parser* getInstance();
     ParserResult* parse(std::string line, bool checkAfterLabel=false);
-    static int getLiteralValue(std::string literal);
+    static int getLiteralValue(std::string literal, std::string& line);
     static bool isSymbol(std::string arg);
-    static std::string literalToHex(std::string arg);
+    static std::string literalToHex(std::string arg, std::string& line);
     static std::string literalToHex(int arg);
     static void writeLiteralToHex(int arg, ParserResult* res);
 };

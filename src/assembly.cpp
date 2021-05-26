@@ -60,7 +60,7 @@ int Assembly::parseDirectiveFirstPass(ParserResult *res)
         std::string symbol_name = res->dir->args.front();
         res->dir->args.pop_front();
         std::string literal = res->dir->args.front();
-        int literalValue = Parser::getLiteralValue(literal);
+        int literalValue = Parser::getLiteralValue(literal, res->line);
 
         addToSymbolTable(symbol_name, absolute_section, SymType::LOCALSYM, literalValue, false);
     }
@@ -73,7 +73,7 @@ int Assembly::parseDirectiveFirstPass(ParserResult *res)
     }
     else if (res->dir->type == DirectiveType::SKIP)
     {
-        int skipBytes = Parser::getLiteralValue(res->dir->args.front());
+        int skipBytes = Parser::getLiteralValue(res->dir->args.front(), res->line);
         locationCounter += skipBytes;
     }
     else if (res->dir->type == DirectiveType::UNDEFINED_DIR)
@@ -135,7 +135,7 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
     }
     else if (res->dir->type == DirectiveType::SKIP)
     {
-        int n = Parser::getLiteralValue(res->dir->args.front());
+        int n = Parser::getLiteralValue(res->dir->args.front(), res->line);
         for (int i = 0; i < n; i++)
         {
             output << "00 ";
@@ -180,7 +180,7 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
             }
             else
             {
-                std::string hexValue = Parser::literalToHex(arg);
+                std::string hexValue = Parser::literalToHex(arg, res->line);
                 outputHex(hexValue);
             }
             locationCounter += WORD_SIZE;

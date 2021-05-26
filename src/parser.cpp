@@ -539,7 +539,7 @@ ParserResult *Parser::parse(std::string line, bool checkAfterLabel)
     return res;
 }
 
-int Parser::getLiteralValue(std::string literal)
+int Parser::getLiteralValue(std::string literal, std::string& line)
 {
     int x;
     if (std::regex_match(literal, std::regex("^0x.*")))
@@ -556,12 +556,12 @@ int Parser::getLiteralValue(std::string literal)
         }
         catch (std::invalid_argument)
         {
-            std::cout << "Error: " << literal << " is invalid" << std::endl;
+            std::cout << "Error in line: " << line << "; " << literal << " is invalid" << std::endl;
             exit(-1);
         }
         catch (std::out_of_range)
         {
-            std::cout << "Error: " << literal << " is out of range" << std::endl;
+            std::cout << "Error in line: " << line << "; " << literal << " is out of range" << std::endl;
             exit(-1);
         }
     }
@@ -573,7 +573,7 @@ bool Parser::isSymbol(std::string arg)
     return !std::regex_match(arg, std::regex("\\d+.*"));
 }
 
-std::string Parser::literalToHex(std::string arg)
+std::string Parser::literalToHex(std::string arg, std::string& line)
 {
     std::string result;
     std::regex re_hex("^0x.*");
@@ -586,12 +586,12 @@ std::string Parser::literalToHex(std::string arg)
         }
         catch (std::invalid_argument)
         {
-            std::cout << "Error: " << arg << " is invalid" << std::endl;
+            std::cout << "Error in line: " << line << "; " << arg << " is invalid" << std::endl;
             exit(-1);
         }
         catch (std::out_of_range)
         {
-            std::cout << "Error: " << arg << " is out of range" << std::endl;
+            std::cout << "Error in line: " << line << "; " << arg << " is out of range" << std::endl;
             exit(-1);
         }
         std::stringstream stream;
