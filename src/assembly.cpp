@@ -60,7 +60,7 @@ int Assembly::parseDirectiveFirstPass(ParserResult *res)
         std::string symbol_name = res->dir->args.front();
         res->dir->args.pop_front();
         std::string literal = res->dir->args.front();
-        int literalValue = Parser::getInstance()->getLiteralValue(literal);
+        int literalValue = Parser::getLiteralValue(literal);
 
         addToSymbolTable(symbol_name, absolute_section, SymType::LOCALSYM, literalValue, false);
     }
@@ -73,14 +73,14 @@ int Assembly::parseDirectiveFirstPass(ParserResult *res)
     }
     else if (res->dir->type == DirectiveType::SKIP)
     {
-        int skipBytes = Parser::getInstance()->getLiteralValue(res->dir->args.front());
+        int skipBytes = Parser::getLiteralValue(res->dir->args.front());
         locationCounter += skipBytes;
     }
     else if (res->dir->type == DirectiveType::UNDEFINED_DIR)
     {
         // std::cout << "Error: Undefined directive " << std::endl;
         // exit(-1);
-        return 1;
+        return -1;
     }
     return 0;
 }
@@ -108,10 +108,12 @@ int Assembly::checkResult(ParserResult *res, std::string line)
     }
     else if (res->type == ParseType::DIRECTIVE)
     {
-        if(parseDirectiveFirstPass(res)) {
+        int status = parseDirectiveFirstPass(res);
+        if(status == -1) {
             std::cout << "Error in line: " << line << "; undefined directive" << std::endl;
             exit(-1);
         }
+        return status;
     }
     else
     {
@@ -133,7 +135,7 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
     }
     else if (res->dir->type == DirectiveType::SKIP)
     {
-        int n = Parser::getInstance()->getLiteralValue(res->dir->args.front());
+        int n = Parser::getLiteralValue(res->dir->args.front());
         for (int i = 0; i < n; i++)
         {
             output << "00 ";
@@ -146,7 +148,7 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
         int n;
         for (std::string arg : res->dir->args)
         {
-            if (Parser::getInstance()->isSymbol(arg))
+            if (Parser::isSymbol(arg))
             {
                 if (symtab.find(arg) == symtab.end()) {
                     std::cout << "ERROR: Local symbol " << arg << " is undefined" << std::endl;
@@ -156,7 +158,7 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
 
                 if (!symtab[arg].section.compare("ABS"))
                 {
-                    std::string hexValue = Parser::getInstance()->literalToHex(symtab[arg].offset);
+                    std::string hexValue = Parser::literalToHex(symtab[arg].offset);
                     outputHex(hexValue);
                     continue;
                 }
@@ -171,14 +173,14 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
                 {
                     // output {symbolOFfset}
                     entry.initEntry(locationCounter, symtab[arg].section, RelocType::ABSOLUTE);
-                    std::string hexValue = Parser::getInstance()->literalToHex(symtab[arg].offset);
+                    std::string hexValue = Parser::literalToHex(symtab[arg].offset);
                     outputHex(hexValue);
                 }
                 reloctab[currentSection].push_back(entry);
             }
             else
             {
-                std::string hexValue = Parser::getInstance()->literalToHex(arg);
+                std::string hexValue = Parser::literalToHex(arg);
                 outputHex(hexValue);
             }
             locationCounter += WORD_SIZE;
@@ -201,13 +203,13 @@ void Assembly::generateRelocEntry(ParserResult *res)
     {
         if (!symtab[res->symbol].section.compare("ABS"))
         {
-            Parser::getInstance()->writeLiteralToHex(symtab[res->symbol].offset, res);
+            Parser::writeLiteralToHex(symtab[res->symbol].offset, res);
             return;
         }
         if (symtab[res->symbol].type == SymType::LOCALSYM)
         {
             entry.initEntry(locationCounter - PAYLOAD_SIZE, symtab[res->symbol].section, RelocType::ABSOLUTE);
-            Parser::getInstance()->writeLiteralToHex(symtab[res->symbol].offset, res);
+            Parser::writeLiteralToHex(symtab[res->symbol].offset, res);
         }
         else // GLOBALSYM
         {
@@ -228,10 +230,10 @@ void Assembly::generateRelocEntry(ParserResult *res)
             {
                 /* AKO PRIPADA ISTOJ SEKCIJI POMERAJ UVEK ISTI TJ. NEMA RELOK. ZAPISA */
                 // Parser::getInstance()->writeLiteralToHex(symtab[res->symbol].offset - locationCounter - PAYLOAD_SIZE, res);
-                Parser::getInstance()->writeLiteralToHex(symtab[res->symbol].offset - locationCounter, res);
+                Parser::writeLiteralToHex(symtab[res->symbol].offset - locationCounter, res);
                 return;
             }
-            Parser::getInstance()->writeLiteralToHex(symtab[res->symbol].offset - PAYLOAD_SIZE, res);
+            Parser::writeLiteralToHex(symtab[res->symbol].offset - PAYLOAD_SIZE, res);
 
             entry.initEntry(locationCounter - PAYLOAD_SIZE, symtab[res->symbol].section, RelocType::RELATIVE);
         }

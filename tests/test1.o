@@ -7,15 +7,15 @@
 # bss
 00 00 00 00 
 # tabela simbola
-ime	sekcija	vr	vidlj	rBr
-bss	bss	0	local	7
-data	data	0	local	6
-text	text	0	local	5
-e	UND	0	global	4
-c	ABS	4	global	3
-b	ABS	1	global	2
-a	ABS	2	global	1
-UND	UND	0		0
+ime	sekcija	vr	vidlj
+bss	bss	0	L
+data	data	0	L
+text	text	0	L
+e	UND	0	G
+c	ABS	4	G
+b	ABS	1	G
+a	ABS	2	G
+UND	UND	0	
 # rel.text
-offset	tip	rbr
-3	R_16	4
+offset	tip	simbol
+3	R_16	e

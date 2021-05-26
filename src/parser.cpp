@@ -178,12 +178,12 @@ void Parser::parseLiteral(ParserResult *res, std::string arg)
         }
         catch (std::invalid_argument)
         {
-            std::cout << "Error: " << arg << " is invalid" << std::endl;
+            std::cout << "Error in line: " << res->line <<"; " << arg << " is invalid" << std::endl;
             exit(-1);
         }
         catch (std::out_of_range)
         {
-            std::cout << "Error: " << arg << " is out of range" << std::endl;
+            std::cout << "Error in line: " << res->line << "; " << arg << " is out of range" << std::endl;
             exit(-1);
         }
 
