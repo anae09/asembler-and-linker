@@ -15,18 +15,18 @@
 00 00 00 
 FF FF 
 # tabela simbola
-ime	sekcija	vr	vidlj	rBr
-b	start	25	local	4
-d	data	3	local	6
-a	start	0	local	3
-data	data	0	local	5
-start	start	0	local	2
-f	UND	0	global	1
-UND	UND	0		0
+ime	sekcija	vr	vidlj
+b	start	25	L
+d	data	3	L
+a	start	0	L
+data	data	0	L
+start	start	0	L
+f	UND	0	G
+UND	UND	0	
 # rel.start
-offset	tip	rbr
-3	abs	2
-13	rel	5
-18	rel	1
-28	abs	2
-54	abs	2
+offset	tip	simbol
+3	R_16	start
+13	R_PC16	data
+18	R_PC16	f
+28	R_16	start
+54	R_16	start

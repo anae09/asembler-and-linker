@@ -1,7 +1,7 @@
 # test
 00 00 00 00 
 # tabela simbola
-ime	sekcija	vr	vidlj	rBr
-before	test	0	local	2
-test	test	0	local	1
-UND	UND	0		0
+ime	sekcija	vr	vidlj
+before	test	0	L
+test	test	0	L
+UND	UND	0	

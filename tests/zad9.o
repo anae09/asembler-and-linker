@@ -15,28 +15,28 @@ A0 0F 04 00 08
 # bss
 00 00 00 00 00 00 00 00 
 # tabela simbola
-ime	sekcija	vr	vidlj	rBr
-bss	bss	0	local	8
-e	data	8	local	7
-data	data	0	local	6
-text	text	0	local	4
-b	UND	0	global	3
-c	bss	0	global	2
-d	text	20	local	5
-a	data	14	global	1
-UND	UND	0		0
+ime	sekcija	vr	vidlj
+bss	bss	0	L
+e	data	8	L
+data	data	0	L
+text	text	0	L
+b	UND	0	G
+c	bss	0	G
+d	text	20	L
+a	data	14	G
+UND	UND	0	
 # rel.data
-offset	tip	rbr
-8	R_16	1
-10	R_16	2
-12	R_16	8
-14	R_16	3
+offset	tip	simbol
+8	R_16	a
+10	R_16	c
+12	R_16	bss
+14	R_16	b
 # rel.text
-offset	tip	rbr
-3	R_PC16	1
-8	R_PC16	6
-13	R_PC16	3
-20	R_16	4
-25	R_16	3
-30	R_16	2
-35	R_16	6
+offset	tip	simbol
+3	R_PC16	a
+8	R_PC16	data
+13	R_PC16	b
+20	R_16	text
+25	R_16	b
+30	R_16	c
+35	R_16	data

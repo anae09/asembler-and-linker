@@ -3,7 +3,7 @@
 # second
 00 00 00 
 # tabela simbola
-ime	sekcija	vr	vidlj	rBr
-first	first	0	local	1
-second	second	0	local	2
-UND	UND	0		0
+ime	sekcija	vr	vidlj
+first	first	0	L
+second	second	0	L
+UND	UND	0	

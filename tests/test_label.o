@@ -2,8 +2,8 @@
 00 00 00 00 00 
 00 00 00 
 # tabela simbola
-ime	sekcija	vr	vidlj	rBr
-b	test	5	local	3
-a	test	0	local	2
-test	test	0	local	1
-UND	UND	0		0
+ime	sekcija	vr	vidlj
+b	test	5	L
+a	test	0	L
+test	test	0	L
+UND	UND	0	

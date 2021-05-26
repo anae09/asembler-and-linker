@@ -7,16 +7,16 @@
 # start
 00
 # tabela simbola
-ime	sekcija	vr	vidlj	rBr
-start	start	0	local	5
-c	test	8	local	4
-b	test	8	local	3
-a	test	8	local	2
-test	test	0	local	1
-UND	UND	0		0
+ime	sekcija	vr	vidlj
+start	start	0	L
+c	test	8	L
+b	test	8	L
+a	test	8	L
+test	test	0	L
+UND	UND	0	
 # rel.test
-offset	tip	rbr
-0	abs	5
-2	abs	1
-4	abs	1
-6	abs	1
+offset	tip	simbol
+0	R_16	start
+2	R_16	test
+4	R_16	test
+6	R_16	test

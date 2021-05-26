@@ -3,11 +3,11 @@
 50 FF 00 00 02
 50 FF 00 FF FE
 # tabela simbola
-ime	sekcija	vr	vidlj	rBr
-text	text	0	local	3
-b	ABS	2	local	2
-a	ABS	2	global	1
-UND	UND	0		0
+ime	sekcija	vr	vidlj
+text	text	0	L
+b	ABS	2	L
+a	ABS	2	G
+UND	UND	0	
 # rel.text
-offset	tip	rbr
-10	rel	2
+offset	tip	simbol
+10	R_PC16	b

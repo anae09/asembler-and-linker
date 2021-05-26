@@ -28,7 +28,7 @@ iret
         ldr r3, [r0 + 0x1234]
 
         ldr r5, LF
-        ldr r0, $smth
+        # ldr r0, $smth
 
         and r4, r4
         or r5, r5

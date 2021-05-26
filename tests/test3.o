@@ -6,30 +6,3 @@ A0 3F 00 00 00
 74 31
 51 FF 00 00 35
 51 FF 00 00 18
-A0 4F 04 FF FE
-A0 23 03 00 00
-70 40
-B0 4F 04 00 00
-A0 5F 00 00 01
-70 35
-00
-# data
-00 01 00 02 00 03 00 04 
-# tabela simbola
-ime	sekcija	vr	vidlj	rBr
-sum	UND	0	global	7
-array_end	data	8	local	6
-array	data	0	local	5
-data	data	0	local	4
-exit	text	53	local	3
-text	text	0	local	1
-loop	text	17	local	2
-UND	UND	0		0
-# rel.text
-offset	tip	rbr
-3	abs	4
-8	abs	4
-22	abs	1
-32	rel	7
-37	abs	4
-44	abs	7
