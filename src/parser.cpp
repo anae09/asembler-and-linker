@@ -135,9 +135,14 @@ char Parser::parseRegister(std::string &reg, std::string& line)
     //     return '7';
     // if (!reg.compare("psw"))
     //     return '8';
-    if (reg[0] == 'r')
+    if (reg[0] == 'r'){
+        if (reg.size() > 2 || reg[1] > '8') {
+            std::cout << "Error in line: " << line << "; undefined register: " << reg << std::endl;
+            exit(-1);
+        }
         return reg[1];
-
+    }
+    
     std::cout << "Error in line: " << line << "; undefined register: " << reg << std::endl;
     exit(-1);
 
