@@ -18,7 +18,7 @@ private:
     void parseDirectiveArguments(std::list <std::string>& args, std::string token);
     void parseInstructionArguments(std::vector <std::string>& args, std::string token);
 
-    char parseRegister(std::string& reg);
+    char parseRegister(std::string& reg, std::string& line);
 
     std::string trim(const std::string &s);
     std::string ltrim(const std::string &s);

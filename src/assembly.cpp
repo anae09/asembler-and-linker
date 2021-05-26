@@ -78,8 +78,9 @@ int Assembly::parseDirectiveFirstPass(ParserResult *res)
     }
     else if (res->dir->type == DirectiveType::UNDEFINED_DIR)
     {
-        std::cout << "Error: Undefined directive " << std::endl;
-        exit(-1);
+        // std::cout << "Error: Undefined directive " << std::endl;
+        // exit(-1);
+        return 1;
     }
     return 0;
 }
@@ -107,7 +108,10 @@ int Assembly::checkResult(ParserResult *res, std::string line)
     }
     else if (res->type == ParseType::DIRECTIVE)
     {
-        return parseDirectiveFirstPass(res);
+        if(parseDirectiveFirstPass(res)) {
+            std::cout << "Error in line: " << line << "; undefined directive" << std::endl;
+            exit(-1);
+        }
     }
     else
     {

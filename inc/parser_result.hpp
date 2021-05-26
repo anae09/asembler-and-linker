@@ -9,6 +9,7 @@ struct ParserResult {
     struct StatementParts* stm = nullptr;
     struct DirectiveParts* dir = nullptr;
     std::string symbol;
+    std::string line;
     ParseType type;
     int size = 0;
     ~ParserResult() {

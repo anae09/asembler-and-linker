@@ -127,7 +127,7 @@ DirectiveType Parser::parseDirective(std::string dir)
     return DirectiveType::UNDEFINED_DIR;
 }
 
-char Parser::parseRegister(std::string &reg)
+char Parser::parseRegister(std::string &reg, std::string& line)
 {
     // if (!reg.compare("sp"))
     //     return '6';
@@ -137,7 +137,10 @@ char Parser::parseRegister(std::string &reg)
     //     return '8';
     if (reg[0] == 'r')
         return reg[1];
-    std::cout << "Undefined register number: " << reg << std::endl;
+
+    std::cout << "Error in line: " << line << "; undefined register: " << reg << std::endl;
+    exit(-1);
+
     return -1;
 }
 
@@ -241,7 +244,7 @@ void Parser::parseOperand(ParserResult *res, std::string arg)
         res->size = 3;
         res->stm->addrMode[0] = AddrType::REGDIR;
         res->stm->addrMode[1] = '0';
-        res->stm->regsDescr[0] = parseRegister(arg);
+        res->stm->regsDescr[0] = parseRegister(arg, res->line);
         if (!res->stm->regsDescr[1])
             res->stm->regsDescr[1] = empty_slot;
     }
@@ -251,7 +254,7 @@ void Parser::parseOperand(ParserResult *res, std::string arg)
         std::stringstream arg_stream(arg);
         std::string tmp;
         getline(arg_stream, tmp, '+');
-        res->stm->regsDescr[0] = parseRegister(tmp);
+        res->stm->regsDescr[0] = parseRegister(tmp, res->line);
         if (!res->stm->regsDescr[1])
             res->stm->regsDescr[1] = empty_slot;
         tmp = "";
@@ -305,7 +308,7 @@ void Parser::parseJumpOperand(ParserResult *res, std::string arg)
         res->size = 3;
         res->stm->addrMode[0] = AddrType::REGDIR;
         res->stm->addrMode[1] = '0';
-        res->stm->regsDescr[0] = parseRegister(arg);
+        res->stm->regsDescr[0] = parseRegister(arg, res->line);
         if (!res->stm->regsDescr[1])
             res->stm->regsDescr[1] = empty_slot;
     }
@@ -315,7 +318,7 @@ void Parser::parseJumpOperand(ParserResult *res, std::string arg)
         std::stringstream arg_stream(arg);
         std::string tmp;
         getline(arg_stream, tmp, '+');
-        res->stm->regsDescr[0] = parseRegister(tmp);
+        res->stm->regsDescr[0] = parseRegister(tmp, res->line);
         if (!res->stm->regsDescr[1])
             res->stm->regsDescr[1] = empty_slot;
         tmp = "";
@@ -400,13 +403,13 @@ int Parser::parseInstruction(struct InstrEntry entry, struct ParserResult *res, 
     case InstrType::ARITHMETIC:
         res->size = 2;
         parseInstructionArguments(args, token);
-        p->regsDescr[1] = parseRegister(args[0]);
-        p->regsDescr[0] = parseRegister(args[1]);
+        p->regsDescr[1] = parseRegister(args[0], res->line);
+        p->regsDescr[0] = parseRegister(args[1], res->line);
         break;
     case InstrType::SYSCALL:
         res->size = 2;
         parseInstructionArguments(args, token);
-        p->regsDescr[1] = parseRegister(args[0]);
+        p->regsDescr[1] = parseRegister(args[0], res->line);
         p->regsDescr[0] = empty_slot;
         break;
     case InstrType::RETURN:
@@ -414,7 +417,7 @@ int Parser::parseInstruction(struct InstrEntry entry, struct ParserResult *res, 
         break;
     case InstrType::LDST:
         parseInstructionArguments(args, token);
-        p->regsDescr[1] = parseRegister(args[0]);
+        p->regsDescr[1] = parseRegister(args[0], res->line);
         p->regsDescr[0] = empty_slot;
         parseOperand(res, args[1]);
         break;
@@ -442,6 +445,7 @@ ParserResult *Parser::parse(std::string line, bool checkAfterLabel)
     }
 
     ParserResult *res = new ParserResult();
+    res->line = line;
     std::stringstream line_stream(std::regex_replace(trim(line), std::regex("\\s{2,}"), " "));
 
     std::vector<std::string> tokens;
