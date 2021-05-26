@@ -60,6 +60,8 @@ private:
     void parseOperand(ParserResult* res, std::string arg);
     void parseJumpOperand(ParserResult* res, std::string arg);
     void parseLiteral(ParserResult* res, std::string arg);
+
+    std::string labelDetected;
 public:
     Parser(Parser &other) = delete;
     void operator=(const Parser &) = delete;

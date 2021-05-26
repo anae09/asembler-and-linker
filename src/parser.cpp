@@ -441,6 +441,11 @@ ParserResult *Parser::parse(std::string line, bool checkAfterLabel)
 {
     if (checkAfterLabel)
     {
+        line = std::regex_replace(line, std::regex(labelDetected), "");
+        if (regex_match(line, std::regex(".*:.*"))) {
+            std::cout << "Error in line: " << line << "; multiple labels" << std::endl;
+            exit(-1);
+        }
         return parse(std::regex_replace(line, std::regex(".*\\:"), ""));
     }
 
@@ -472,6 +477,7 @@ ParserResult *Parser::parse(std::string line, bool checkAfterLabel)
     { // CHECK IF LABEL
         // std::cout << "Label" << std::endl;
         res->type = ParseType::LABEL;
+        labelDetected = tokens[0];
         res->symbol = std::regex_replace(tokens[0], std::regex(":"), "");
     }
     else if (regex_match(tokens[0], re_directive))
