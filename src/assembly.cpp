@@ -14,7 +14,15 @@ Assembly::Assembly(std::string inputFilename, std::string outputFilename)
     output.open(outputFilename);
     if (!output)
     {
-        std::cout << "File not created!" << std::endl;
+        std::cout << "File " << outputFilename << " not created!" << std::endl;
+        exit(-3);
+    }
+
+    output_bin.open(outputFilename + ".bin", std::ios::binary);
+    if (!output_bin)
+    {
+        std::cout << "File " << outputFilename << ".bin not created!" << std::endl;
+        exit(-3);
     }
     symtab[undefined_section].initSymbol(undefined_section, undefined_section, SymType::NOSYMTYPE, 0, 0, true);
 }
@@ -109,7 +117,8 @@ int Assembly::checkResult(ParserResult *res, std::string line)
     else if (res->type == ParseType::DIRECTIVE)
     {
         int status = parseDirectiveFirstPass(res);
-        if(status == -1) {
+        if (status == -1)
+        {
             std::cout << "Error in line: " << line << "; undefined directive" << std::endl;
             exit(-1);
         }
@@ -132,6 +141,8 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
         currentSection = res->dir->args.front();
         locationCounter = 0;
         output << "# " << currentSection << std::endl;
+        outputSection = new struct Section(currentSection, symtab[currentSection].size);
+        sectionList.push_back(outputSection);
     }
     else if (res->dir->type == DirectiveType::SKIP)
     {
@@ -139,6 +150,7 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
         for (int i = 0; i < n; i++)
         {
             output << "00 ";
+            if (outputSection) outputSection->machine_code += "00";
         }
         output << std::endl;
         locationCounter += n;
@@ -150,16 +162,17 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
         {
             if (Parser::isSymbol(arg))
             {
-                if (symtab.find(arg) == symtab.end()) {
+                if (symtab.find(arg) == symtab.end())
+                {
                     std::cout << "Error in line: " << res->line << "; Local symbol " << arg << " is undefined" << std::endl;
                     exit(-2);
                 }
-                    // symtab[arg].initSymbol(arg, undefined_section, SymType::GLOBALSYM);
 
                 if (!symtab[arg].section.compare("ABS"))
                 {
                     std::string hexValue = Parser::literalToHex(symtab[arg].offset);
                     outputHex(hexValue);
+                    outputHexToBinary(hexValue);
                     continue;
                 }
                 RelocationEntry entry;
@@ -168,6 +181,7 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
                 { // -> ABSOLUTE
                     entry.initEntry(locationCounter, arg, RelocType::ABSOLUTE);
                     output << "00 00 ";
+                    if (outputSection) outputSection->machine_code += "0000";
                 }
                 else // LOCAL SYM
                 {
@@ -175,6 +189,7 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
                     entry.initEntry(locationCounter, symtab[arg].section, RelocType::ABSOLUTE);
                     std::string hexValue = Parser::literalToHex(symtab[arg].offset);
                     outputHex(hexValue);
+                    outputHexToBinary(hexValue);
                 }
                 reloctab[currentSection].push_back(entry);
             }
@@ -182,6 +197,7 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
             {
                 std::string hexValue = Parser::literalToHex(arg, res->line);
                 outputHex(hexValue);
+                outputHexToBinary(hexValue);
             }
             locationCounter += WORD_SIZE;
         }
@@ -277,7 +293,6 @@ int Assembly::assemble()
 
     /* SECOND PASS */
 
-    // std::cout << resultList.size() << std::endl;
     locationCounter = 0;
     for (ParserResult *res : resultList)
     {
@@ -295,13 +310,75 @@ int Assembly::assemble()
             }
 
             output << res->stm << std::endl;
+            if (outputSection) outputSection->machine_code += StatementParts::readStm(res->stm);
         }
     }
     outputSymbolTable();
     outputRelocTable();
 
+    outputToBinaryFile();
+
     //printSymbolTable();
     //printRelocTable();
+
+    return 0;
+}
+
+int Assembly::outputToBinaryFile()
+{
+    /* OUTPUT TO BINARY FILE*/
+    /* WRITE HEADER */
+    int numSection = sectionList.size();
+    int numRelocTables = reloctab.size();
+    int numSymTabEntries = symtab.size();
+    output_bin.write((char *)&numSection, sizeof(int));
+    output_bin.write((char *)&numRelocTables, sizeof(int));
+    output_bin.write((char *)&numSymTabEntries, sizeof(int));
+    /* WRITE SECTIONS */
+    std::list<struct Section *>::iterator iter;
+    for (iter = sectionList.begin(); iter != sectionList.end(); iter++)
+    {
+        struct Section s = **iter;
+        std::cout << s.name << ", " << s.size << std::endl;
+
+        output_bin.write(s.name.c_str(), s.name.length() + 1);
+        output_bin.write((char *)&s.size, sizeof(int));
+        output_bin.write(s.machine_code.c_str(), s.machine_code.length() + 1);
+        
+        std::list<struct RelocationEntry>& relocList = reloctab[s.name];
+        int numRelocEntries = relocList.size();
+        output_bin.write((char *)&numRelocEntries, sizeof(int));
+
+        std::list<struct RelocationEntry>::iterator relocIter;
+
+        for (relocIter = relocList.begin(); relocIter != relocList.end(); relocIter++) {
+            int offset = (*relocIter).offset;
+            std::string& symbol = (*relocIter).symbol;
+            RelocType type = (*relocIter).type;
+            output_bin.write((char*)&offset, sizeof(int));
+            output_bin.write((char *)&type, sizeof(RelocType));
+            output_bin.write(symbol.c_str(), symbol.length() + 1);
+        }
+
+
+        if (!output_bin.good())
+        {
+            std::cout << "Error occurred while writing to binary!" << std::endl;
+            return 1;
+        }
+    }
+
+    /* WRITE SYMTAB */
+    std::unordered_map<std::string, struct Symbol>::iterator iterSym;
+    for (iterSym = symtab.begin(); iterSym != symtab.end(); iterSym++)
+    {
+        //std::cout << iterSym->second << std::endl;
+        output_bin.write(iterSym->second.name.c_str(), iterSym->second.name.length() + 1);
+        output_bin.write(iterSym->second.section.c_str(), iterSym->second.section.length() + 1);
+        output_bin.write((char*)&iterSym->second.offset, sizeof(int));
+        output_bin.write((char*)&iterSym->second.type, sizeof(SymType));
+    }
+
 
     return 0;
 }
@@ -332,10 +409,26 @@ void Assembly::outputHex(std::string hexValue)
             output << " ";
         if (i < hexValue.length())
             output << hexValue[hexValue.length() - 1 - i];
-        else
+        else 
             output << "0";
     }
     output << " ";
+}
+
+void Assembly::outputHexToBinary(std::string hexValue) {
+    if (!outputSection) return;
+    for (int i = 3; i >= 0; i--)
+    {
+        if (i == 1)
+            output << " ";
+        if (i < hexValue.length()) {
+            outputSection->machine_code += hexValue[hexValue.length() - 1 - i];
+        }
+        else {
+            outputSection->machine_code += "0";
+        }
+            
+    }
 }
 
 void Assembly::printSymbolTable()
@@ -420,10 +513,15 @@ Assembly::~Assembly()
         input.close();
     if (output)
         output.close();
+    if (output_bin)
+        output_bin.close();
     for (ParserResult *res : resultList)
     {
         delete res;
     }
+    for (struct Section *s : sectionList)
+    {
+        delete s;
+    }
     resultList.clear();
 }
-

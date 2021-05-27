@@ -14,6 +14,7 @@ struct StatementParts {
     void setDataZero();
     void setDataPCRel();
     void setDataX();
+    static std::string readStm(StatementParts* stm);
     
     friend std::ostream& operator<<(std::ostream& os, const StatementParts* stm);
 };

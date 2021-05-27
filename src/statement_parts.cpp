@@ -1,4 +1,5 @@
 #include "statement_parts.hpp"
+#include <sstream>
 
 std::ostream& operator<<(std::ostream& os, const StatementParts* stm){
     os << stm->intrDescr[1] << stm->intrDescr[0];
@@ -36,4 +37,24 @@ void StatementParts::setDataX() {
     dataHigh[0] = 'X';
     dataLow[1] = 'X';
     dataLow[0] = 'X';
+}
+
+std::string StatementParts::readStm(StatementParts* stm) {
+    std::stringstream ss;
+    
+    ss << stm->intrDescr[1] << stm->intrDescr[0];
+
+    if (stm->regsDescr[1] != 0 && stm->regsDescr[0] != 0) {
+        ss << " " << stm->regsDescr[1] << stm->regsDescr[0];
+    }
+    if (stm->addrMode[1] != 0 && stm->addrMode[0] != 0) {
+        ss << " " << stm->addrMode[1] << stm->addrMode[0];
+    }
+    if (stm->dataHigh[1] != 0 && stm->dataHigh[0] != 0) {
+        ss << " " << stm->dataHigh[1] << stm->dataHigh[0];
+    }
+    if (stm->dataLow[1] != 0 && stm->dataLow[0] != 0) {
+        ss << " " << stm->dataLow[1] << stm->dataLow[0];
+    }
+    return ss.str();
 }
