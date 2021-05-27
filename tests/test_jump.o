@@ -13,7 +13,7 @@
 50 F3 03 00 00
 # data
 00 00 00 
-FF FF 
+FF FF  
 # tabela simbola
 ime	sekcija	vr	vidlj
 b	start	25	L
