@@ -1,6 +1,12 @@
 #include "linker.hpp"
 #include <fstream>
 #include <regex>
+#include <map>
+
+void Linker::addSection(std::string section_name, unsigned int start_addr) {
+    section_table[section_name].name = section_name;
+    section_table[section_name].start_addr = start_addr;
+}
 
 void Linker::loadFiles(std::list<std::string> inputFilenames)
 {
@@ -15,16 +21,17 @@ void Linker::loadFiles(std::list<std::string> inputFilenames)
         }
 
         struct FileInfo *file = new FileInfo();
+        file->filename = *filenamesIter;
 
         input.read((char *)&(file->numSections), sizeof(int));
         input.read((char *)&file->numRelTables, sizeof(int));
         input.read((char *)&file->numSymtabEntries, sizeof(int));
 
-        struct Section s;
-        struct RelocationEntry entry;
-
         for (int i = 0; i < file->numSections; i++)
         {
+            struct Section s;
+            struct RelocationEntry entry;
+
             std::getline(input, s.name, '\0');
             input.read((char *)&s.size, sizeof(int));
             std::getline(input, s.machine_code, '\0');
@@ -59,16 +66,18 @@ void Linker::loadFiles(std::list<std::string> inputFilenames)
             if (symbol.type != SymType::GLOBALSYM)
                 continue;
 
-            if (symbol_table.find(symbol.name) != symbol_table.end() && symbol.section.compare("UND") != 0)
+            if (symbol_table.find(symbol.name) != symbol_table.end())
             {
-                std::cout << "Error: Symbol [" << symbol.name << "] already defined!" << std::endl;
-                exit(-1);
-            }
-
-            if (symbol_table.find(symbol.name) != symbol_table.end() && symbol.section.compare("UND") == 0)
-            {
-                symbol_table[symbol.name].section = symbol.section;
-                symbol_table[symbol.name].offset = symbol.offset;
+                if (symbol.section.compare("UND") != 0 && symbol_table[symbol.name].section.compare("UND") != 0)
+                {
+                    std::cout << "Error: Symbol [" << symbol.name << "] already defined!" << std::endl;
+                    exit(-1);
+                }
+                else if (symbol.section.compare("UND") != 0 && symbol_table[symbol.name].section.compare("UND") == 0)
+                {
+                    symbol_table[symbol.name].section = symbol.section;
+                    symbol_table[symbol.name].offset = symbol.offset;
+                }
             }
             else
             {
@@ -108,7 +117,8 @@ void Linker::updateSymbolTable(FileInfo *file, std::string &section_name)
     std::list<std::string>::iterator iter;
     for (iter = file->symbols.begin(); iter != file->symbols.end(); iter++)
     {
-        symbol_table[*iter].offset = file->section_table[section_name].start_addr;
+        if (symbol_table[*iter].section.compare("ABS"))
+            symbol_table[*iter].offset = file->section_table[section_name].start_addr;
     }
 }
 
@@ -122,10 +132,44 @@ void Linker::updateRelocationTable(FileInfo *file, std::string &section_name)
     }
 }
 
+void Linker::sectionPlacement() {
+    std::unordered_map<std::string, struct Section>::iterator iter;
+    std::map<unsigned int, std::string> sections_ordered;
+
+    for (iter = section_table.begin(); iter != section_table.end(); iter++) {
+        sections_ordered.insert(std::pair<unsigned int, std::string>(iter->second.start_addr, iter->first));
+    }
+
+    std::map<unsigned int, std::string>::iterator map_iter;
+
+    for (map_iter = sections_ordered.begin(); map_iter != sections_ordered.end(); map_iter++) {
+        std::cout << map_iter->second << "\t" << map_iter->first << std::endl; 
+        if (map_iter->first < locationCounter) {
+            std::cout << "Error: " << map_iter->second << " address overlap" << std::endl;
+            exit(-3);
+        }
+        locationCounter = map_iter->first;
+        std::string& currentSection = map_iter->second;
+        for (int i = 0; i < files.size(); i++)
+        {
+            if (files[i]->section_table.find(currentSection) == files[i]->section_table.end()) continue;
+            files[i]->section_table[currentSection].start_addr = locationCounter;
+            section_table[currentSection].machine_code = files[i]->section_table[currentSection].machine_code;
+            section_table[currentSection].size = files[i]->section_table[currentSection].size;
+            locationCounter += section_table[currentSection].size;
+            
+            updateSymbolTable(files[i], currentSection);
+            updateRelocationTable(files[i], currentSection);
+        }
+    }
+}
+
 void Linker::run()
 {
     checkIfUndef();
-    locationCounter = 0;
+    // locationCounter = 0;
+    sectionPlacement();
+    
     for (int i = 0; i < files.size(); i++)
     {
         std::unordered_map<std::string, struct Section>::iterator section_iter;

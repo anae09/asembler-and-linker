@@ -11,14 +11,16 @@ private:
     std::unordered_map<std::string, struct Symbol> symbol_table;
     std::unordered_map<std::string, struct Section> section_table;
     std::vector<struct FileInfo*> files;
-    int locationCounter;
+    int locationCounter = 0;
 
     void loadFiles(std::list<std::string> inputFilenames);
     void checkIfUndef();
     void updateSymbolTable(FileInfo* file, std::string& section_name);
     void updateRelocationTable(FileInfo* file, std::string& section_name);
+    void sectionPlacement();
 public:
     Linker(std::list<std::string> inputFilenames);
+    void addSection(std::string section_name, unsigned int start_addr);
     void run();
     ~Linker();
 };
