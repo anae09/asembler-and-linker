@@ -3,7 +3,8 @@
 #include <regex>
 #include <map>
 
-void Linker::addSection(std::string section_name, unsigned int start_addr) {
+void Linker::addSection(std::string section_name, unsigned int start_addr)
+{
     section_table[section_name].name = section_name;
     section_table[section_name].start_addr = start_addr;
 }
@@ -39,14 +40,14 @@ void Linker::loadFiles(std::list<std::string> inputFilenames)
 
             s.machine_code = std::regex_replace(s.machine_code, std::regex("\\s+"), "");
 
-            std::cout << s << std::endl;
+            //std::cout << s << std::endl;
 
             for (int j = 0; j < s.numRelocEntries; j++)
             {
                 input.read((char *)&entry.offset, sizeof(int));
                 input.read((char *)&entry.type, sizeof(RelocType));
                 std::getline(input, entry.symbol, '\0');
-                std::cout << entry << std::endl;
+                // std::cout << entry << std::endl;
                 s.relocTable.push_back(entry);
             }
             file->section_table[s.name] = s;
@@ -61,7 +62,7 @@ void Linker::loadFiles(std::list<std::string> inputFilenames)
             input.read((char *)&symbol.offset, sizeof(int));
             input.read((char *)&symbol.type, sizeof(SymType));
 
-            std::cout << symbol << std::endl;
+            //std::cout << symbol << std::endl;
 
             if (symbol.type != SymType::GLOBALSYM)
                 continue;
@@ -132,32 +133,37 @@ void Linker::updateRelocationTable(FileInfo *file, std::string &section_name)
     }
 }
 
-void Linker::sectionPlacement() {
+void Linker::sectionPlacement()
+{
     std::unordered_map<std::string, struct Section>::iterator iter;
     std::map<unsigned int, std::string> sections_ordered;
 
-    for (iter = section_table.begin(); iter != section_table.end(); iter++) {
+    for (iter = section_table.begin(); iter != section_table.end(); iter++)
+    {
         sections_ordered.insert(std::pair<unsigned int, std::string>(iter->second.start_addr, iter->first));
     }
 
     std::map<unsigned int, std::string>::iterator map_iter;
 
-    for (map_iter = sections_ordered.begin(); map_iter != sections_ordered.end(); map_iter++) {
-        std::cout << map_iter->second << "\t" << map_iter->first << std::endl; 
-        if (map_iter->first < locationCounter) {
+    for (map_iter = sections_ordered.begin(); map_iter != sections_ordered.end(); map_iter++)
+    {
+        std::cout << map_iter->second << "\t" << map_iter->first << std::endl;
+        if (map_iter->first < locationCounter)
+        {
             std::cout << "Error: " << map_iter->second << " address overlap" << std::endl;
             exit(-3);
         }
         locationCounter = map_iter->first;
-        std::string& currentSection = map_iter->second;
+        std::string &currentSection = map_iter->second;
         for (int i = 0; i < files.size(); i++)
         {
-            if (files[i]->section_table.find(currentSection) == files[i]->section_table.end()) continue;
+            if (files[i]->section_table.find(currentSection) == files[i]->section_table.end())
+                continue;
             files[i]->section_table[currentSection].start_addr = locationCounter;
-            section_table[currentSection].machine_code = files[i]->section_table[currentSection].machine_code;
-            section_table[currentSection].size = files[i]->section_table[currentSection].size;
-            locationCounter += section_table[currentSection].size;
-            
+            section_table[currentSection].machine_code += files[i]->section_table[currentSection].machine_code;
+            section_table[currentSection].size += files[i]->section_table[currentSection].size;
+            locationCounter += files[i]->section_table[currentSection].size;
+
             updateSymbolTable(files[i], currentSection);
             updateRelocationTable(files[i], currentSection);
         }
@@ -169,7 +175,7 @@ void Linker::run()
     checkIfUndef();
     // locationCounter = 0;
     sectionPlacement();
-    
+
     for (int i = 0; i < files.size(); i++)
     {
         std::unordered_map<std::string, struct Section>::iterator section_iter;
@@ -184,7 +190,7 @@ void Linker::run()
             currentSection.machine_code += section_iter->second.machine_code;
             currentSection.size += section_iter->second.size;
 
-            locationCounter += currentSection.size;
+            locationCounter += section_iter->second.size;
 
             updateSymbolTable(files[i], currentSection.name);
             updateRelocationTable(files[i], currentSection.name);
@@ -197,11 +203,73 @@ void Linker::run()
                     files[j]->section_table[currentSection.name].start_addr = locationCounter;
                     currentSection.machine_code += files[j]->section_table[currentSection.name].machine_code;
                     currentSection.size += files[j]->section_table[currentSection.name].size;
-                    locationCounter += currentSection.size;
+                    locationCounter += files[j]->section_table[currentSection.name].size;
 
                     updateSymbolTable(files[j], currentSection.name);
                     updateRelocationTable(files[i], currentSection.name);
                 }
+            }
+        }
+    }
+    printSectionTable();
+    printSymbolTable();
+    printRelocTables();
+}
+
+void Linker::printSectionTable()
+{
+    std::cout << "### sekcije" << std::endl;
+    std::unordered_map<std::string, struct Section>::iterator iter;
+    std::cout << "# name"
+              << "\t"
+              << "size"
+              << "\t"
+              << "start_address" << std::endl;
+    for (iter = section_table.begin(); iter != section_table.end(); iter++)
+    {
+        std::cout << iter->second.name << "\t" << iter->second.size << "\t" << iter->second.start_addr << std::endl;
+    }
+}
+
+void Linker::printSymbolTable()
+{
+    std::unordered_map<std::string, struct Symbol>::iterator iter;
+    std::cout << "# tabela simbola" << std::endl;
+    std::cout << "ime"
+              << "\t"
+              << "sekcija"
+              << "\t"
+              << "vr"
+              << "\t"
+              << "vidlj"
+              << std::endl;
+    for (iter = symbol_table.begin(); iter != symbol_table.end(); iter++)
+    {
+        std::cout << iter->second << std::endl;
+    }
+}
+
+void Linker::printRelocTables()
+{
+    std::unordered_map<std::string, struct Section>::iterator section_iter;
+    std::list<struct RelocationEntry>::iterator iter;
+
+    for (int i = 0; i < files.size(); i++)
+    {
+        for (section_iter = files[i]->section_table.begin(); section_iter != files[i]->section_table.end(); section_iter++)
+        {
+            std::list<struct RelocationEntry> &reloctab = section_iter->second.relocTable;
+            if (reloctab.size() == 0) continue;
+            std::cout << files[i]->filename << " #rel." << section_iter->first << std::endl;
+            std::cout << "offset"
+                      << "\t"
+                      << "tip"
+                      << "\t"
+                      << "simbol" << std::endl;
+
+            for (iter = reloctab.begin(); iter != reloctab.end(); iter++)
+            {
+                std::cout << (*iter) << std::endl;
             }
         }
     }

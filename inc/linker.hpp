@@ -18,6 +18,9 @@ private:
     void updateSymbolTable(FileInfo* file, std::string& section_name);
     void updateRelocationTable(FileInfo* file, std::string& section_name);
     void sectionPlacement();
+    void printSectionTable();
+    void printSymbolTable();
+    void printRelocTables();
 public:
     Linker(std::list<std::string> inputFilenames);
     void addSection(std::string section_name, unsigned int start_addr);
