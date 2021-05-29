@@ -2,6 +2,7 @@
 #include <fstream>
 #include <regex>
 #include <map>
+#include <sstream>
 
 void Linker::addSection(std::string section_name, unsigned int start_addr)
 {
@@ -160,7 +161,12 @@ void Linker::sectionPlacement()
             if (files[i]->section_table.find(currentSection) == files[i]->section_table.end())
                 continue;
             files[i]->section_table[currentSection].start_addr = locationCounter;
-            section_table[currentSection].machine_code += files[i]->section_table[currentSection].machine_code;
+            //section_table[currentSection].machine_code += files[i]->section_table[currentSection].machine_code;
+            output.resize(2 * (locationCounter + files[i]->section_table[currentSection].size));
+            for (int j = 0; j < files[i]->section_table[currentSection].machine_code.size(); j++)
+            {
+                output[locationCounter * 2 + j] = files[i]->section_table[currentSection].machine_code[j];
+            }
             section_table[currentSection].size += files[i]->section_table[currentSection].size;
             locationCounter += files[i]->section_table[currentSection].size;
 
@@ -187,7 +193,12 @@ void Linker::run()
             struct Section &currentSection = section_table[section_iter->first];
             currentSection.name = section_iter->first;
             currentSection.start_addr = locationCounter;
-            currentSection.machine_code += section_iter->second.machine_code;
+            // currentSection.machine_code += section_iter->second.machine_code;
+            output.resize(2 * (locationCounter + section_iter->second.size));
+            for (int j = 0; j < section_iter->second.machine_code.size(); j++)
+            {
+                output[locationCounter * 2 + j] = section_iter->second.machine_code[j];
+            }
             currentSection.size += section_iter->second.size;
 
             locationCounter += section_iter->second.size;
@@ -201,7 +212,12 @@ void Linker::run()
                 if (files[j]->section_table.find(currentSection.name) != files[j]->section_table.end())
                 {
                     files[j]->section_table[currentSection.name].start_addr = locationCounter;
-                    currentSection.machine_code += files[j]->section_table[currentSection.name].machine_code;
+                    // currentSection.machine_code += files[j]->section_table[currentSection.name].machine_code;
+                    output.resize(2 * (locationCounter + files[j]->section_table[currentSection.name].size));
+                    for (int k = 0; k < files[j]->section_table[currentSection.name].machine_code.size(); k++)
+                    {
+                        output[locationCounter * 2 + k] = files[j]->section_table[currentSection.name].machine_code[k];
+                    }
                     currentSection.size += files[j]->section_table[currentSection.name].size;
                     locationCounter += files[j]->section_table[currentSection.name].size;
 
@@ -211,9 +227,78 @@ void Linker::run()
             }
         }
     }
-    printSectionTable();
-    printSymbolTable();
-    printRelocTables();
+    printOutput();
+    //printSectionTable();
+    //printSymbolTable();
+    //printRelocTables();
+
+    std::unordered_map<std::string, struct Section>::iterator iter;
+    struct Symbol symbol;
+    for (iter = section_table.begin(); iter != section_table.end(); iter++) {
+        struct Section& section = iter->second;
+        symbol.initSymbol(section.name, section.name, SymType::LOCALSYM, section.start_addr, section.size);
+        if (symbol_table.find(section.name) == symbol_table.end()) {
+            symbol_table[section.name] = symbol;
+        } else {
+            std::cout << "SECTION IN SYMBOL TABLE" << std::endl;
+            exit(-2);
+        }
+    }
+
+    referenceRelocation();
+    printOutput();
+}
+
+void Linker::referenceRelocation()
+{
+    std::unordered_map<std::string, struct Section>::iterator section_iter;
+    std::list<struct RelocationEntry>::iterator iter;
+    std::stringstream stream;
+
+    for (int i = 0; i < files.size(); i++)
+    {
+        for (section_iter = files[i]->section_table.begin(); section_iter != files[i]->section_table.end(); section_iter++)
+        {
+            std::list<struct RelocationEntry> &reloctab = section_iter->second.relocTable;
+            if (reloctab.size() == 0)
+                continue;
+            struct Section &currentSection = section_iter->second;
+            for (iter = reloctab.begin(); iter != reloctab.end(); iter++) // foreach reloc. entry where section = section_iter-second
+            {
+                stream.str(std::string());
+                struct RelocationEntry &reloc_entry = *iter;
+
+                int refptr = reloc_entry.offset * 2;
+
+                if (reloc_entry.type == RelocType::RELATIVE)
+                {
+                    std::string addend = "";
+                    for (int i = 0; i < 4; i++)
+                    {
+                        addend += output[refptr + i];
+                    }
+                    int x;
+                    stream << std::hex << addend;
+                    stream >> x;
+                    stream.str(std::string());
+                    stream << std::uppercase << std::hex << (x + symbol_table[reloc_entry.symbol].offset);
+                }
+                if (reloc_entry.type == RelocType::ABSOLUTE)
+                {
+                    stream << std::uppercase << std::hex << symbol_table[reloc_entry.symbol].offset;
+                }
+                std::string hex_value = stream.str();
+                for (int i = 3; i >= 0; i--)
+                {
+                    if (i < hex_value.length())
+                        output[refptr] = hex_value[hex_value.length() - 1 - i];
+                    else
+                        output[refptr] = '0';
+                    refptr++;
+                }
+            }
+        }
+    }
 }
 
 void Linker::printSectionTable()
@@ -259,7 +344,8 @@ void Linker::printRelocTables()
         for (section_iter = files[i]->section_table.begin(); section_iter != files[i]->section_table.end(); section_iter++)
         {
             std::list<struct RelocationEntry> &reloctab = section_iter->second.relocTable;
-            if (reloctab.size() == 0) continue;
+            if (reloctab.size() == 0)
+                continue;
             std::cout << files[i]->filename << " #rel." << section_iter->first << std::endl;
             std::cout << "offset"
                       << "\t"
@@ -273,6 +359,21 @@ void Linker::printRelocTables()
             }
         }
     }
+}
+
+void Linker::printOutput()
+{
+    for (int i = 0; i < output.size(); i++)
+    {
+        if (!output[i])
+            continue;
+        if (i > 0 && i % 8 == 0)
+            std::cout << std::endl;
+        else if (i > 0 && i % 2 == 0)
+            std::cout << " ";
+        std::cout << output[i];
+    }
+    std::cout << std::endl;
 }
 
 Linker::~Linker()

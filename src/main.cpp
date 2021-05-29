@@ -2,6 +2,7 @@
 #include <list>
 #include "linker.hpp"
 
+
 int main()
 {
 	std::list<std::string> filenames;
