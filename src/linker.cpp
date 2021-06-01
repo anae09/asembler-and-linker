@@ -176,7 +176,7 @@ void Linker::sectionPlacement()
     }
 }
 
-void Linker::run()
+void Linker::runHex()
 {
     checkIfUndef();
     // locationCounter = 0;

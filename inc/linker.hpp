@@ -27,6 +27,6 @@ private:
 public:
     Linker(std::list<std::string> inputFilenames);
     void addSection(std::string section_name, unsigned int start_addr);
-    void run();
+    void runHex();
     ~Linker();
 };
