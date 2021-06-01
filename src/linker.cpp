@@ -1,8 +1,8 @@
 #include "linker.hpp"
-#include <fstream>
 #include <regex>
 #include <map>
 #include <sstream>
+#include <string>
 
 void Linker::addSection(std::string section_name, unsigned int start_addr)
 {
@@ -109,9 +109,16 @@ void Linker::checkIfUndef()
     }
 }
 
-Linker::Linker(std::list<std::string> inputFilenames)
+Linker::Linker(std::list<std::string> inputFilenames, std::string outputname, bool linkable)
 {
     loadFiles(inputFilenames);
+    if (linkable) {
+        outputFile.open("tests/" + outputname);
+        if (!outputFile) {
+            std::cout << "Error: file " << outputname << std::endl;  
+            exit(-1);
+        }
+    }
 }
 
 void Linker::updateSymbolTable(FileInfo *file, std::string &section_name)
@@ -120,7 +127,7 @@ void Linker::updateSymbolTable(FileInfo *file, std::string &section_name)
     for (iter = file->symbols.begin(); iter != file->symbols.end(); iter++)
     {
         if (symbol_table[*iter].section.compare("ABS"))
-            symbol_table[*iter].offset = file->section_table[section_name].start_addr;
+            symbol_table[*iter].offset += file->section_table[section_name].start_addr;
     }
 }
 
@@ -222,7 +229,7 @@ void Linker::runHex()
                     locationCounter += files[j]->section_table[currentSection.name].size;
 
                     updateSymbolTable(files[j], currentSection.name);
-                    updateRelocationTable(files[i], currentSection.name);
+                    updateRelocationTable(files[j], currentSection.name);
                 }
             }
         }
@@ -232,18 +239,7 @@ void Linker::runHex()
     //printSymbolTable();
     //printRelocTables();
 
-    std::unordered_map<std::string, struct Section>::iterator iter;
-    struct Symbol symbol;
-    for (iter = section_table.begin(); iter != section_table.end(); iter++) {
-        struct Section& section = iter->second;
-        symbol.initSymbol(section.name, section.name, SymType::LOCALSYM, section.start_addr, section.size);
-        if (symbol_table.find(section.name) == symbol_table.end()) {
-            symbol_table[section.name] = symbol;
-        } else {
-            std::cout << "SECTION IN SYMBOL TABLE" << std::endl;
-            exit(-2);
-        }
-    }
+    addSectionToSymtab();
 
     referenceRelocation();
     printOutput();
@@ -280,6 +276,7 @@ void Linker::referenceRelocation()
                     int x;
                     stream << std::hex << addend;
                     stream >> x;
+                    stream.clear();
                     stream.str(std::string());
                     stream << std::uppercase << std::hex << (x + symbol_table[reloc_entry.symbol].offset);
                 }
@@ -382,5 +379,186 @@ Linker::~Linker()
     for (iter = files.begin(); iter != files.end(); iter++)
     {
         delete *iter;
+    }
+}
+
+void Linker::runLinkable()
+{
+    locationCounter = 0;
+    for (int i = 0; i < files.size(); i++)
+    {
+        std::unordered_map<std::string, struct Section>::iterator section_iter;
+
+        for (section_iter = files[i]->section_table.begin(); section_iter != files[i]->section_table.end(); section_iter++)
+        {
+            if (section_table.find(section_iter->first) != section_table.end())
+                continue;
+            locationCounter = 0;
+            struct Section &currentSection = section_table[section_iter->first];
+
+            currentSection.name = section_iter->first;
+            currentSection.start_addr = locationCounter;
+            currentSection.machine_code += section_iter->second.machine_code;
+
+            locationCounter += section_iter->second.size;
+
+            //updateSymbolTable(files[i], currentSection.name);
+            //updateRelocationTable(files[i], currentSection.name);
+
+            for (int j = i + 1; j < files.size(); j++)
+            {
+
+                if (files[j]->section_table.find(currentSection.name) != files[j]->section_table.end())
+                {
+                    files[j]->section_table[currentSection.name].start_addr = locationCounter;
+                    currentSection.machine_code += files[j]->section_table[currentSection.name].machine_code;
+                    currentSection.size += files[j]->section_table[currentSection.name].size;
+                    locationCounter += files[j]->section_table[currentSection.name].size;
+
+                    updateSymbolTable(files[j], currentSection.name);
+                    updateRelocationTable(files[j], currentSection.name);
+                }
+            }
+        }
+    }
+    printSymbolTable();
+    printSectionTable();
+    resolveRelocationLinkable();
+    addSectionToSymtab();
+    writeToOutputFile();
+}
+
+void Linker::resolveRelocationLinkable()
+{
+    for (int i = 0; i < files.size(); i++)
+    {
+        std::unordered_map<std::string, struct Section>::iterator section_iter;
+
+        for (section_iter = files[i]->section_table.begin(); section_iter != files[i]->section_table.end(); section_iter++)
+        {
+            struct Section &currentSection = section_table[section_iter->first];
+            struct Section &fileSection = section_iter->second;
+            std::list<struct RelocationEntry>::iterator reloc_iter;
+            for (reloc_iter = fileSection.relocTable.begin(); reloc_iter != fileSection.relocTable.end(); reloc_iter++)
+            {
+                if (symbol_table.find(reloc_iter->symbol) != symbol_table.end()) // u TS svi globalni
+                {
+                    currentSection.relocTable.push_back(*reloc_iter);
+                    currentSection.numRelocEntries++;
+                }
+                else // sigurno je lokalni simbol
+                {
+                    if (reloc_iter->type == RelocType::RELATIVE && !reloc_iter->symbol.compare(currentSection.name))
+                    {
+                        // da li moze da se desi ???
+                        std::cout << "460" << std::endl;
+                        exit(-5);
+                    }
+                    else
+                    {
+                        // saberi upisanu vrednost i vrednost sekcije i upisi je nazad
+                        int refptr = reloc_iter->offset * 2, num;
+                        std::string hex_value = "";
+                        for (int i = 0; i < 4; i++)
+                        {
+                            hex_value += currentSection.machine_code[refptr++];
+                        }
+                        std::stringstream stream;
+                        stream << std::hex << hex_value;
+                        stream >> num;
+                        num += fileSection.start_addr;
+                        stream.clear();
+                        stream.str(std::string()); // clear
+                        stream << std::uppercase << std::hex << num;
+                        hex_value = stream.str();
+                        refptr = reloc_iter->offset * 2;
+                        for (int i = 3; i >= 0; i--)
+                        {
+                            if (i < hex_value.length())
+                                currentSection.machine_code[refptr] = hex_value[hex_value.length() - 1 - i];
+                            else
+                                currentSection.machine_code[refptr] = '0';
+                            refptr++;
+                        }
+                        currentSection.relocTable.push_back(*reloc_iter);
+                        currentSection.numRelocEntries++;
+                    }
+                    // else
+                    // {
+                    //     std::string symbolname = currentSection.name + std::to_string(i);
+                    //     symbol_table[symbolname].initSymbol(symbolname, currentSection.name, SymType::LOCALSYM, fileSection.start_addr, 0);
+                    //     reloc_iter->symbol = symbolname;
+                    //     currentSection.relocTable.push_back(*reloc_iter);
+                    //     currentSection.numRelocEntries++;
+                    // }
+                }
+            }
+        }
+    }
+}
+
+void Linker::writeToOutputFile()
+{
+
+    std::unordered_map<std::string, struct Section>::iterator iter_section;
+    for (iter_section = section_table.begin(); iter_section != section_table.end(); iter_section++)
+    {
+        // section machine code
+        outputFile << "# " << iter_section->second.name << std::endl;
+        for (int i = 0; i < iter_section->second.machine_code.length(); i++)
+        {
+            if (i > 0 && i % 2 == 0)
+                outputFile << " ";
+            outputFile << iter_section->second.machine_code[i];
+        }
+        outputFile << std::endl;
+
+        outputFile << "# rel." << iter_section->second.name << std::endl;
+        std::list<struct RelocationEntry>::iterator relocIter;
+        std::list<struct RelocationEntry> &lst = iter_section->second.relocTable;
+        outputFile << "offset"
+                   << "\t"
+                   << "tip"
+                   << "\t"
+                   << "simbol" << std::endl;
+        for (relocIter = lst.begin(); relocIter != lst.end(); relocIter++)
+        {
+            outputFile << (*relocIter) << std::endl;
+        }
+    }
+
+    // output symbol table
+    std::unordered_map<std::string, struct Symbol>::iterator iter;
+    outputFile << "# tabela simbola" << std::endl;
+    outputFile << "ime"
+               << "\t"
+               << "sekcija"
+               << "\t"
+               << "vr"
+               << "\t"
+               << "vidlj"
+               << std::endl;
+    for (iter = symbol_table.begin(); iter != symbol_table.end(); iter++)
+    {
+        outputFile << iter->second << std::endl;
+    }
+}
+
+void Linker::addSectionToSymtab() {
+    std::unordered_map<std::string, struct Section>::iterator iter;
+    struct Symbol symbol;
+    for (iter = section_table.begin(); iter != section_table.end(); iter++)
+    {
+        struct Section &section = iter->second;
+        symbol.initSymbol(section.name, section.name, SymType::LOCALSYM, section.start_addr, section.size);
+        if (symbol_table.find(section.name) == symbol_table.end())
+        {
+            symbol_table[section.name] = symbol;
+        }
+        else
+        {
+            std::cout << "SECTION IN SYMBOL TABLE" << std::endl;
+            exit(-2);
+        }
     }
 }

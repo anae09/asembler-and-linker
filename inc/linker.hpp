@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <fstream>
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -12,6 +13,7 @@ private:
     std::unordered_map<std::string, struct Section> section_table;
     std::vector<struct FileInfo*> files;
     std::vector<char> output;
+    std::ofstream outputFile;
     int locationCounter = 0;
 
     void loadFiles(std::list<std::string> inputFilenames);
@@ -20,13 +22,17 @@ private:
     void updateRelocationTable(FileInfo* file, std::string& section_name);
     void sectionPlacement();
     void referenceRelocation();
+    void resolveRelocationLinkable();
     void printSectionTable();
     void printSymbolTable();
     void printRelocTables();
     void printOutput();
+    void writeToOutputFile();
+    void addSectionToSymtab();
 public:
-    Linker(std::list<std::string> inputFilenames);
+    Linker(std::list<std::string> inputFilenames, std::string outputname, bool linkable = false);
     void addSection(std::string section_name, unsigned int start_addr);
     void runHex();
+    void runLinkable();
     ~Linker();
 };

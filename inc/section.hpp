@@ -8,7 +8,7 @@ struct Section {
         int size = 0;
         unsigned int start_addr = 0;
         std::string machine_code = "";
-        int numRelocEntries;
+        int numRelocEntries = 0;
 
         std::list<struct RelocationEntry> relocTable;
 
