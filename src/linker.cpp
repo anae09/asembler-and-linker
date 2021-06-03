@@ -67,16 +67,20 @@ void Linker::loadFiles(std::list<std::string> inputFilenames, bool linkable)
 
             if (!linkable && symbol.type != SymType::GLOBALSYM)
                 continue;
-            else if (linkable && symbol.type == SymType::LOCALSYM) {
-                if (symbol.name.compare(symbol.section)) {
-                    if (symbol_table.find(symbol.name) == symbol_table.end()) {
+            else if (linkable && symbol.type == SymType::LOCALSYM)
+            {
+                if (symbol.name.compare(symbol.section))
+                {
+                    if (symbol_table.find(symbol.name) == symbol_table.end())
+                    {
                         file->symbols.push_back(symbol.name);
                         symbol_table[symbol.name] = symbol;
-                    } else {
+                    }
+                    else
+                    {
                         std::cout << "Error: Symbol [" << symbol.name << "] already in symbol table!" << std::endl;
                         exit(-1);
                     }
-                    
                 }
                 continue;
             }
@@ -98,7 +102,8 @@ void Linker::loadFiles(std::list<std::string> inputFilenames, bool linkable)
             {
                 symbol_table[symbol.name] = symbol;
             }
-            if (symbol.section.compare("UND")) file->symbols.push_back(symbol.name);
+            if (symbol.section.compare("UND"))
+                file->symbols.push_back(symbol.name);
         }
 
         if (input)
@@ -124,10 +129,12 @@ void Linker::checkIfUndef()
 Linker::Linker(std::list<std::string> inputFilenames, std::string outputname, bool linkable)
 {
     loadFiles(inputFilenames, linkable);
-    if (linkable) {
+    if (linkable)
+    {
         outputFile.open("tests/" + outputname);
-        if (!outputFile) {
-            std::cout << "Error: file " << outputname << std::endl;  
+        if (!outputFile)
+        {
+            std::cout << "Error: file " << outputname << std::endl;
             exit(-1);
         }
     }
@@ -138,8 +145,7 @@ void Linker::updateSymbolTable(FileInfo *file, std::string &section_name)
     std::list<std::string>::iterator iter;
     for (iter = file->symbols.begin(); iter != file->symbols.end(); iter++)
     {
-        if (symbol_table[*iter].section.compare("ABS") 
-            && !symbol_table[*iter].section.compare(section_name))
+        if (symbol_table[*iter].section.compare("ABS") && !symbol_table[*iter].section.compare(section_name))
             symbol_table[*iter].offset += file->section_table[section_name].start_addr;
     }
 }
@@ -213,6 +219,7 @@ void Linker::runHex()
             struct Section &currentSection = section_table[section_iter->first];
             currentSection.name = section_iter->first;
             currentSection.start_addr = locationCounter;
+            files[i]->section_table[currentSection.name].start_addr = locationCounter;
             // currentSection.machine_code += section_iter->second.machine_code;
             output.resize(2 * (locationCounter + section_iter->second.size));
             for (int j = 0; j < section_iter->second.machine_code.size(); j++)
@@ -247,7 +254,7 @@ void Linker::runHex()
             }
         }
     }
-    printOutput();
+    //printOutput();
     //printSectionTable();
     //printSymbolTable();
     //printRelocTables();
@@ -274,28 +281,43 @@ void Linker::referenceRelocation()
             struct Section &currentSection = section_iter->second;
             for (iter = reloctab.begin(); iter != reloctab.end(); iter++) // foreach reloc. entry where section = section_iter-second
             {
+                stream.clear();
                 stream.str(std::string());
                 struct RelocationEntry &reloc_entry = *iter;
 
                 int refptr = reloc_entry.offset * 2;
 
+                std::string addend = "";
+                for (int i = 0; i < 4; i++)
+                {
+                    addend += output[refptr + i];
+                }
+                int x;
+                stream << std::hex << addend;
+                stream >> x;
+                stream.clear();
+                stream.str(std::string());
                 if (reloc_entry.type == RelocType::RELATIVE)
                 {
-                    std::string addend = "";
-                    for (int i = 0; i < 4; i++)
+                    if (symbol_table[reloc_entry.symbol].type == SymType::LOCALSYM)
                     {
-                        addend += output[refptr + i];
+                        stream << std::uppercase << std::hex << (files[i]->section_table[reloc_entry.symbol].start_addr + x - reloc_entry.offset);
                     }
-                    int x;
-                    stream << std::hex << addend;
-                    stream >> x;
-                    stream.clear();
-                    stream.str(std::string());
-                    stream << std::uppercase << std::hex << (x + symbol_table[reloc_entry.symbol].offset);
+                    else
+                    {
+                        stream << std::uppercase << std::hex << (symbol_table[reloc_entry.symbol].offset + x - reloc_entry.offset);
+                    }
                 }
-                if (reloc_entry.type == RelocType::ABSOLUTE)
+                else if (reloc_entry.type == RelocType::ABSOLUTE)
                 {
-                    stream << std::uppercase << std::hex << symbol_table[reloc_entry.symbol].offset;
+                    if (symbol_table[reloc_entry.symbol].type == SymType::LOCALSYM)
+                    {
+                        stream << std::uppercase << std::hex << (files[i]->section_table[reloc_entry.symbol].start_addr + x);
+                    }
+                    else
+                    {
+                        stream << std::uppercase << std::hex << symbol_table[reloc_entry.symbol].offset;
+                    }
                 }
                 std::string hex_value = stream.str();
                 for (int i = 3; i >= 0; i--)
@@ -454,11 +476,10 @@ void Linker::resolveRelocationLinkable()
             std::list<struct RelocationEntry>::iterator reloc_iter;
             for (reloc_iter = fileSection.relocTable.begin(); reloc_iter != fileSection.relocTable.end(); reloc_iter++)
             {
-                if (symbol_table.find(reloc_iter->symbol) != symbol_table.end() 
-                    && symbol_table[reloc_iter->symbol].type == SymType::GLOBALSYM) // u TS svi globalni
+                if (symbol_table.find(reloc_iter->symbol) != symbol_table.end() && symbol_table[reloc_iter->symbol].type == SymType::GLOBALSYM) // u TS svi globalni
                 {
-                    if (!symbol_table[reloc_iter->symbol].section.compare(currentSection.name) 
-                        && reloc_iter->type == RelocType::RELATIVE){
+                    if (!symbol_table[reloc_iter->symbol].section.compare(currentSection.name) && reloc_iter->type == RelocType::RELATIVE)
+                    {
                         // sekcija simbola u relokac. zapisu == trenutnoj sekciji && PCREL ==> ne dodaje se relok. zapis
                         // izracunava se pomeraj odmah
                         int refptr = reloc_iter->offset * 2, num;
@@ -484,7 +505,9 @@ void Linker::resolveRelocationLinkable()
                                 currentSection.machine_code[refptr] = '0';
                             refptr++;
                         }
-                    } else {
+                    }
+                    else
+                    {
                         currentSection.relocTable.push_back(*reloc_iter);
                         currentSection.numRelocEntries++;
                     }
@@ -496,7 +519,6 @@ void Linker::resolveRelocationLinkable()
                         // da li moze da se desi??
                         std::cout << "483" << std::endl;
                         exit(-5);
-                        
                     }
                     else
                     {
@@ -589,7 +611,8 @@ void Linker::writeToOutputFile()
     }
 }
 
-void Linker::addSectionToSymtab() {
+void Linker::addSectionToSymtab()
+{
     std::unordered_map<std::string, struct Section>::iterator iter;
     struct Symbol symbol;
     for (iter = section_table.begin(); iter != section_table.end(); iter++)
