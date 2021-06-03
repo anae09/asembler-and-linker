@@ -10,7 +10,7 @@ void Linker::addSection(std::string section_name, unsigned int start_addr)
     section_table[section_name].start_addr = start_addr;
 }
 
-void Linker::loadFiles(std::list<std::string> inputFilenames)
+void Linker::loadFiles(std::list<std::string> inputFilenames, bool linkable)
 {
     std::list<std::string>::iterator filenamesIter;
     for (filenamesIter = inputFilenames.begin(); filenamesIter != inputFilenames.end(); filenamesIter++)
@@ -65,8 +65,21 @@ void Linker::loadFiles(std::list<std::string> inputFilenames)
 
             //std::cout << symbol << std::endl;
 
-            if (symbol.type != SymType::GLOBALSYM)
+            if (!linkable && symbol.type != SymType::GLOBALSYM)
                 continue;
+            else if (linkable && symbol.type == SymType::LOCALSYM) {
+                if (symbol.name.compare(symbol.section)) {
+                    if (symbol_table.find(symbol.name) == symbol_table.end()) {
+                        file->symbols.push_back(symbol.name);
+                        symbol_table[symbol.name] = symbol;
+                    } else {
+                        std::cout << "Error: Symbol [" << symbol.name << "] already in symbol table!" << std::endl;
+                        exit(-1);
+                    }
+                    
+                }
+                continue;
+            }
 
             if (symbol_table.find(symbol.name) != symbol_table.end())
             {
@@ -85,8 +98,7 @@ void Linker::loadFiles(std::list<std::string> inputFilenames)
             {
                 symbol_table[symbol.name] = symbol;
             }
-
-            file->symbols.push_back(symbol.name);
+            if (symbol.section.compare("UND")) file->symbols.push_back(symbol.name);
         }
 
         if (input)
@@ -111,7 +123,7 @@ void Linker::checkIfUndef()
 
 Linker::Linker(std::list<std::string> inputFilenames, std::string outputname, bool linkable)
 {
-    loadFiles(inputFilenames);
+    loadFiles(inputFilenames, linkable);
     if (linkable) {
         outputFile.open("tests/" + outputname);
         if (!outputFile) {
@@ -126,7 +138,8 @@ void Linker::updateSymbolTable(FileInfo *file, std::string &section_name)
     std::list<std::string>::iterator iter;
     for (iter = file->symbols.begin(); iter != file->symbols.end(); iter++)
     {
-        if (symbol_table[*iter].section.compare("ABS"))
+        if (symbol_table[*iter].section.compare("ABS") 
+            && !symbol_table[*iter].section.compare(section_name))
             symbol_table[*iter].offset += file->section_table[section_name].start_addr;
     }
 }
@@ -399,7 +412,7 @@ void Linker::runLinkable()
             currentSection.name = section_iter->first;
             currentSection.start_addr = locationCounter;
             currentSection.machine_code += section_iter->second.machine_code;
-
+            currentSection.size += section_iter->second.size;
             locationCounter += section_iter->second.size;
 
             //updateSymbolTable(files[i], currentSection.name);
@@ -441,18 +454,49 @@ void Linker::resolveRelocationLinkable()
             std::list<struct RelocationEntry>::iterator reloc_iter;
             for (reloc_iter = fileSection.relocTable.begin(); reloc_iter != fileSection.relocTable.end(); reloc_iter++)
             {
-                if (symbol_table.find(reloc_iter->symbol) != symbol_table.end()) // u TS svi globalni
+                if (symbol_table.find(reloc_iter->symbol) != symbol_table.end() 
+                    && symbol_table[reloc_iter->symbol].type == SymType::GLOBALSYM) // u TS svi globalni
                 {
-                    currentSection.relocTable.push_back(*reloc_iter);
-                    currentSection.numRelocEntries++;
+                    if (!symbol_table[reloc_iter->symbol].section.compare(currentSection.name) 
+                        && reloc_iter->type == RelocType::RELATIVE){
+                        // sekcija simbola u relokac. zapisu == trenutnoj sekciji && PCREL ==> ne dodaje se relok. zapis
+                        // izracunava se pomeraj odmah
+                        int refptr = reloc_iter->offset * 2, num;
+                        std::string hex_value = "";
+                        for (int i = 0; i < 4; i++)
+                        {
+                            hex_value += currentSection.machine_code[refptr++];
+                        }
+                        std::stringstream stream;
+                        stream << std::hex << hex_value;
+                        stream >> num;
+                        num = num + symbol_table[reloc_iter->symbol].offset - reloc_iter->offset;
+                        stream.clear();
+                        stream.str(std::string()); // clear
+                        stream << std::uppercase << std::hex << num;
+                        hex_value = stream.str();
+                        refptr = reloc_iter->offset * 2;
+                        for (int i = 3; i >= 0; i--)
+                        {
+                            if (i < hex_value.length())
+                                currentSection.machine_code[refptr] = hex_value[hex_value.length() - 1 - i];
+                            else
+                                currentSection.machine_code[refptr] = '0';
+                            refptr++;
+                        }
+                    } else {
+                        currentSection.relocTable.push_back(*reloc_iter);
+                        currentSection.numRelocEntries++;
+                    }
                 }
                 else // sigurno je lokalni simbol
                 {
                     if (reloc_iter->type == RelocType::RELATIVE && !reloc_iter->symbol.compare(currentSection.name))
                     {
-                        // da li moze da se desi ???
-                        std::cout << "460" << std::endl;
+                        // da li moze da se desi??
+                        std::cout << "483" << std::endl;
                         exit(-5);
+                        
                     }
                     else
                     {
@@ -466,7 +510,8 @@ void Linker::resolveRelocationLinkable()
                         std::stringstream stream;
                         stream << std::hex << hex_value;
                         stream >> num;
-                        num += fileSection.start_addr;
+                        // sabira se sa pocetnom adresom sekcije trenutnog fajla
+                        num += files[i]->section_table[reloc_iter->symbol].start_addr;
                         stream.clear();
                         stream.str(std::string()); // clear
                         stream << std::uppercase << std::hex << num;

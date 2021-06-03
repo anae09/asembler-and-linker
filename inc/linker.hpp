@@ -16,7 +16,7 @@ private:
     std::ofstream outputFile;
     int locationCounter = 0;
 
-    void loadFiles(std::list<std::string> inputFilenames);
+    void loadFiles(std::list<std::string> inputFilenames, bool linkable);
     void checkIfUndef();
     void updateSymbolTable(FileInfo* file, std::string& section_name);
     void updateRelocationTable(FileInfo* file, std::string& section_name);

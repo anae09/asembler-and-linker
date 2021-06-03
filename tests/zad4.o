@@ -1,0 +1,26 @@
+# text
+A0 0F 04 00 00 50 FF 00 FF FE 50 FF 00 FF FE 00 00 00 00 00
+# rel.text
+offset	tip	simbol
+3	R_16	a
+8	R_PC16	c
+13	R_PC16	d
+# bss
+00 00 00 00 00 55 55 66 66
+# rel.bss
+offset	tip	simbol
+# data
+00 00 77 77 A0 5F 04 00 07 00 00 00 00 00 00 00 00 00 00
+# rel.data
+offset	tip	simbol
+7	R_16	bss
+# tabela simbola
+ime	sekcija	vr	vidlj
+data	data	0	L
+bss	bss	0	L
+text	text	0	L
+UND	UND	0	
+a	text	5	G
+d	bss	5	G
+c	bss	7	G
+b	data	2	L

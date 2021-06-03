@@ -1,11 +1,11 @@
 # text
-50 FF 00 00 00 00 00 52 FF 00 00 00 50 FF 00 00 07
+50 FF 00 00 00 00 00 52 FF 00 00 00 50 FF 00 00 09
 # rel.text
 offset	tip	simbol
 3	R_16	e
 5	R_16	data
 10	R_16	g
-15	R_16	bss
+15	R_PC16	bss
 # data
 00 00 00 00 00 00 00 11 00 00
 # rel.data
@@ -22,6 +22,8 @@ data	data	0	L
 text	text	0	L
 f	ABS	3	G
 g	ABS	1	G
+LABELA	bss	11	L
+UND	UND	0	
 a	ABS	2	G
 b	ABS	4	G
 c	ABS	4	G
