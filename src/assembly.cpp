@@ -36,6 +36,11 @@ int Assembly::parseDirectiveFirstPass(ParserResult *res)
         {
             symtab[currentSection].size = locationCounter;
         }
+        else 
+        {
+            std::cout << "Error: section not defined" << std::endl;
+            exit(-5);
+        }
         return 1;
     }
     if (res->dir->type == DirectiveType::GLOBAL || res->dir->type == DirectiveType::EXTERN)
@@ -74,6 +79,10 @@ int Assembly::parseDirectiveFirstPass(ParserResult *res)
     }
     else if (res->dir->type == DirectiveType::WORD)
     {
+        if (currentSection.empty()) {
+            std::cout << "Error in line: " << res->line << "; statement outside section is not allowed" << std::endl;
+            exit(-5);
+        }
         for (std::string arg : res->dir->args)
         {
             locationCounter += WORD_SIZE;
@@ -81,6 +90,10 @@ int Assembly::parseDirectiveFirstPass(ParserResult *res)
     }
     else if (res->dir->type == DirectiveType::SKIP)
     {
+        if (currentSection.empty()) {
+            std::cout << "Error in line: " << res->line << "; statement outside section is not allowed" << std::endl;
+            exit(-5);
+        }
         int skipBytes = Parser::getLiteralValue(res->dir->args.front(), res->line);
         locationCounter += skipBytes;
     }
