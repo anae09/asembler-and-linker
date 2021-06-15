@@ -1,0 +1,28 @@
+# text
+A0 0F 04 00 00
+50 FF 00 FF FE
+# bss
+00 00 00 00 00 
+55 55  
+# data
+00 00 
+77 77  
+# sekcije
+ime	vel.
+text	10
+bss	7
+data	4
+# tabela simbola
+ime	sekcija	vr	vidlj
+b	data	2	L
+data	data	0	L
+bss	bss	0	L
+text	text	0	L
+c	UND	0	G
+d	bss	5	G
+a	text	5	G
+UND	UND	0	
+# rel.text
+offset	tip	simbol
+3	R_16	a
+8	R_PC16	c

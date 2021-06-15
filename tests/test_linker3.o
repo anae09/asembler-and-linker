@@ -1,0 +1,21 @@
+# text
+52 FF 00 00 00
+50 FF 00 00 02
+# bss
+00 00 00 00 
+# sekcije
+ime	vel.
+text	10
+bss	4
+# tabela simbola
+ime	sekcija	vr	vidlj
+bss	bss	0	L
+text	text	0	L
+g	UND	0	G
+e	ABS	3	G
+LABELA	bss	4	L
+UND	UND	0	
+# rel.text
+offset	tip	simbol
+3	R_16	g
+8	R_PC16	bss

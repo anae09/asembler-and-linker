@@ -1,0 +1,19 @@
+# data
+00 00 
+# bss
+00 00 00 
+# sekcije
+ime	vel.
+data	2
+bss	3
+# tabela simbola
+ime	sekcija	vr	vidlj
+bss	bss	0	L
+data	data	0	L
+c	UND	0	G
+g	ABS	1	G
+f	ABS	3	G
+UND	UND	0	
+# rel.data
+offset	tip	simbol
+0	R_16	c
