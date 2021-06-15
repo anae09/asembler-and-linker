@@ -1,5 +1,8 @@
 # test
 00 00 00 00 
+# sekcije
+ime	vel.
+test	4
 # tabela simbola
 ime	sekcija	vr	vidlj
 c	test	0	G

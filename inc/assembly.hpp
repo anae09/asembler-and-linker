@@ -38,6 +38,8 @@ private:
     void generateRelocEntry(ParserResult* res);
     void outputHex(std::string hexValue);
     void outputHexToBinary(std::string hexValue);
+    void printSections();
+    void outputSections();
 
     void addToSymbolTable(std::string name, std::string section, SymType type, int offset, bool is_section);
 public:

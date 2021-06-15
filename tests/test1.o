@@ -6,6 +6,11 @@
 00 11  
 # bss
 00 00 00 00 
+# sekcije
+ime	vel.
+text	8
+data	2
+bss	4
 # tabela simbola
 ime	sekcija	vr	vidlj
 bss	bss	0	L

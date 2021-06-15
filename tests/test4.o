@@ -6,6 +6,10 @@
 20
 # start
 00
+# sekcije
+ime	vel.
+test	9
+start	1
 # tabela simbola
 ime	sekcija	vr	vidlj
 start	start	0	L

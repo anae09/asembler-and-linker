@@ -14,6 +14,10 @@
 # data
 00 00 00 
 FF FF  
+# sekcije
+ime	vel.
+start	56
+data	5
 # tabela simbola
 ime	sekcija	vr	vidlj
 b	start	25	L

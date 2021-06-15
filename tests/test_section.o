@@ -2,6 +2,10 @@
 00 00 00 00 00 
 # second
 00 00 00 
+# sekcije
+ime	vel.
+first	5
+second	3
 # tabela simbola
 ime	sekcija	vr	vidlj
 first	first	0	L

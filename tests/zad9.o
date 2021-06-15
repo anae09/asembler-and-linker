@@ -14,6 +14,11 @@ A0 0F 04 00 08
 00 00 
 # bss
 00 00 00 00 00 00 00 00 
+# sekcije
+ime	vel.
+text	37
+data	16
+bss	8
 # tabela simbola
 ime	sekcija	vr	vidlj
 bss	bss	0	L

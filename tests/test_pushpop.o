@@ -3,6 +3,9 @@ B0 66 12
 B0 66 12
 B0 56 12
 A0 06 42
+# sekcije
+ime	vel.
+test	12
 # tabela simbola
 ime	sekcija	vr	vidlj
 test	test	0	L

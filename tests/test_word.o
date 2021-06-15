@@ -5,6 +5,9 @@
 00 00  
 56 78  
 F8 F8  
+# sekcije
+ime	vel.
+wtest	16
 # tabela simbola
 ime	sekcija	vr	vidlj
 lbl1	wtest	4	L

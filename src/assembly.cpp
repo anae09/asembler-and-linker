@@ -103,7 +103,10 @@ int Assembly::checkResult(ParserResult *res, std::string line)
     resultList.push_back(res);
     if (res->type == ParseType::LABEL)
     {
-
+        if (currentSection.empty()) {
+            std::cout << "Error in line: " << res->line << "; defining label outside section is not allowed" << std::endl;
+            exit(-5);
+        }
         addToSymbolTable(res->symbol, currentSection, SymType::LOCALSYM, locationCounter, false);
 
         res = Parser::getInstance()->parse(line, true);
@@ -112,6 +115,10 @@ int Assembly::checkResult(ParserResult *res, std::string line)
     }
     else if (res->type == ParseType::INSTRUCTION)
     {
+        if (currentSection.empty()) {
+            std::cout << "Error in line: " << res->line << "; instruction outside section is not allowed" << std::endl;
+            exit(-5);
+        }
         locationCounter += res->size;
     }
     else if (res->type == ParseType::DIRECTIVE)
@@ -313,6 +320,9 @@ int Assembly::assemble()
             if (outputSection) outputSection->machine_code += StatementParts::readStm(res->stm);
         }
     }
+    //printSections();
+
+    outputSections();
     outputSymbolTable();
     outputRelocTable();
 
@@ -322,6 +332,29 @@ int Assembly::assemble()
     //printRelocTable();
 
     return 0;
+}
+
+void Assembly::printSections() {
+    if (sectionList.size() == 0) return;
+    std::cout << "# sekcije" << std::endl;
+    std::cout << "ime" << "\t" << "vel." << std::endl;
+    std::list<struct Section *>::iterator iter;
+    for (iter = sectionList.begin(); iter != sectionList.end(); iter++)
+    {
+        struct Section s = **iter;
+        std::cout << s.name << "\t" << s.size << std::endl;
+    }
+}
+
+void Assembly::outputSections() {
+    output << "# sekcije" << std::endl;
+    output << "ime" << "\t" << "vel." << std::endl;
+    std::list<struct Section *>::iterator iter;
+    for (iter = sectionList.begin(); iter != sectionList.end(); iter++)
+    {
+        struct Section s = **iter;
+        output << s.name << "\t" << s.size << std::endl;
+    }
 }
 
 int Assembly::outputToBinaryFile()

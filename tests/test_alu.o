@@ -22,6 +22,10 @@ A0 5F 04 00 0A
 82 55
 90 66
 00
+# sekcije
+ime	vel.
+test	9
+start	58
 # tabela simbola
 ime	sekcija	vr	vidlj
 LF	ABS	10	L
