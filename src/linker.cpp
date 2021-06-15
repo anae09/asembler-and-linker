@@ -172,6 +172,9 @@ void Linker::sectionPlacement()
 
     for (map_iter = sections_ordered.begin(); map_iter != sections_ordered.end(); map_iter++)
     {
+        if (map_iter == sections_ordered.begin()) {
+            start_address = map_iter->first;
+        }
         std::cout << map_iter->second << "\t" << map_iter->first << std::endl;
         if (map_iter->first < locationCounter)
         {
@@ -335,16 +338,29 @@ void Linker::referenceRelocation()
 
 void Linker::printSectionTable()
 {
-    std::cout << "### sekcije" << std::endl;
+    std::cout << "# sekcije" << std::endl;
     std::unordered_map<std::string, struct Section>::iterator iter;
-    std::cout << "# name"
+    std::cout << "ime"
               << "\t"
-              << "size"
-              << "\t"
-              << "start_address" << std::endl;
+              << "vel."
+              << std::endl;
     for (iter = section_table.begin(); iter != section_table.end(); iter++)
     {
-        std::cout << iter->second.name << "\t" << iter->second.size << "\t" << iter->second.start_addr << std::endl;
+        std::cout << iter->second.name << "\t" << iter->second.size << std::endl;
+    }
+}
+
+void Linker::writeSectionTable()
+{
+    outputFile << "# sekcije" << std::endl;
+    std::unordered_map<std::string, struct Section>::iterator iter;
+    outputFile << "ime"
+              << "\t"
+              << "vel."
+              << std::endl;
+    for (iter = section_table.begin(); iter != section_table.end(); iter++)
+    {
+        outputFile << iter->second.name << "\t" << iter->second.size << std::endl;
     }
 }
 
@@ -395,7 +411,7 @@ void Linker::printRelocTables()
 
 void Linker::printHexOutput()
 {
-    std::cout << std::setfill('0') << std::setw(4) << std::hex << 0 << ": "; // pocetna adresa
+    std::cout << std::setfill('0') << std::setw(4) << std::hex << start_address << ": "; // pocetna adresa
     for (unsigned int i = 0; i < output.size(); i++)
     {
         if (!output[i])
@@ -403,7 +419,7 @@ void Linker::printHexOutput()
         if (i > 0 && i % 16 == 0)
         {
             std::cout << std::endl;
-            std::cout << std::setfill('0') << std::setw(4) << std::hex << i << ": ";
+            std::cout << std::setfill('0') << std::setw(4) << std::hex << (start_address+i) << ": ";
         }
         else if (i > 0 && i % 2 == 0)
             std::cout << " ";
@@ -414,19 +430,18 @@ void Linker::printHexOutput()
 
 void Linker::writeHexOutput()
 {
-    outputFile << std::setfill('0') << std::setw(4) << std::hex << 0 << ": "; // pocetna adresa
+    outputFile << std::setfill('0') << std::setw(4) << std::hex << start_address << ": "; // pocetna adresa
     for (unsigned int i = 0; i < output.size(); i++)
     {
-        if (!output[i])
-            continue;
         if (i > 0 && i % 16 == 0)
         {
             outputFile << std::endl;
-            outputFile << std::setfill('0') << std::setw(4) << std::hex << i << ": ";
+            outputFile << std::setfill('0') << std::setw(4) << std::hex << (start_address+i) << ": ";
         }
         else if (i > 0 && i % 2 == 0)
             outputFile << " ";
-        outputFile << output[i];
+        if (output[i])  outputFile << output[i];
+        else outputFile << "0";
     }
     outputFile << std::endl;
 }
@@ -591,7 +606,7 @@ void Linker::resolveRelocationLinkable()
 
 void Linker::writeToOutputFile()
 {
-
+    writeSectionTable();
     std::unordered_map<std::string, struct Section>::iterator iter_section;
     for (iter_section = section_table.begin(); iter_section != section_table.end(); iter_section++)
     {
@@ -604,6 +619,8 @@ void Linker::writeToOutputFile()
             outputFile << iter_section->second.machine_code[i];
         }
         outputFile << std::endl;
+
+        if (iter_section->second.relocTable.size() == 0) continue;
 
         outputFile << "# rel." << iter_section->second.name << std::endl;
         std::list<struct RelocationEntry>::iterator relocIter;
@@ -635,6 +652,16 @@ void Linker::writeToOutputFile()
         outputFile << iter->second << std::endl;
     }
 }
+
+// void Linker::printSections() {
+//     std::cout << "# sekcije" << std::endl;
+//     std::cout << "ime" << "\t" << "vel." << std::endl;
+//     std::unordered_map<std::string, struct Section>::iterator iter;
+//     for (iter = section_table.begin(); iter != section_table.end(); iter++)
+//     {
+//         std::cout << iter->second.name << "\t" << iter->second.size << std::endl;
+//     }
+// }
 
 void Linker::addSectionToSymtab()
 {

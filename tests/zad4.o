@@ -1,3 +1,8 @@
+# sekcije
+ime	vel.
+text	20
+bss	9
+data	19
 # text
 A0 0F 04 00 00 50 FF 00 FF FE 50 FF 00 FF FE 00 00 00 00 00
 # rel.text
@@ -7,8 +12,6 @@ offset	tip	simbol
 13	R_PC16	d
 # bss
 00 00 00 00 00 55 55 66 66
-# rel.bss
-offset	tip	simbol
 # data
 00 00 77 77 A0 5F 04 00 07 00 00 00 00 00 00 00 00 00 00
 # rel.data

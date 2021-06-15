@@ -20,7 +20,7 @@ Placement parsePlacement(std::string arg) {
 	stream.clear();
     stream.str(std::string());
 	arg = std::regex_replace(arg, place, "");
-	std::cout << arg << std::endl;
+	// std::cout << arg << std::endl;
 	int pos = arg.find('@');
 	if (pos < 0) {
 		std::cout << "Error: Invalid option " << arg << std::endl; 
@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 	std::string arg;
 	while (i < argc) {
 		arg = std::string(argv[i++]);
-		std:: cout << arg << std::endl;
+		// std:: cout << arg << std::endl;
 		if (!arg.compare("-o")) {
 			if (!outputname.empty()) {
 				std::cout << "Output file already defined" << std::endl;
@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 		}
 		else if (arg.rfind("-place", 0) == 0) {
 			Placement p = parsePlacement(arg);
-			std::cout << p.name << ", " << p.address << std::endl;
+			//std::cout << p.name << ", " << p.address << std::endl;
 			placements.push_back(p);
 		} else {
 			filenames.push_back(arg);

@@ -15,6 +15,7 @@ private:
     std::vector<char> output;
     std::ofstream outputFile;
     int locationCounter = 0;
+    int start_address = 0;
 
     void loadFiles(std::list<std::string> inputFilenames, bool linkable);
     void checkIfUndef();
@@ -30,6 +31,7 @@ private:
     void writeHexOutput();
     void writeToOutputFile();
     void addSectionToSymtab();
+    void writeSectionTable();
 public:
     Linker(std::list<std::string> inputFilenames, std::string outputname, bool linkable = false);
     void addSection(std::string section_name, unsigned int start_addr);
