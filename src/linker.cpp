@@ -3,6 +3,7 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <iomanip>
 
 void Linker::addSection(std::string section_name, unsigned int start_addr)
 {
@@ -395,12 +396,15 @@ void Linker::printRelocTables()
 
 void Linker::printOutput()
 {
-    for (int i = 0; i < output.size(); i++)
+    std::cout << std::setfill('0') << std::setw(4) << std::hex << 0 << ": "; // pocetna adresa
+    for (unsigned int i = 0; i < output.size(); i++)
     {
         if (!output[i])
             continue;
-        if (i > 0 && i % 8 == 0)
+        if (i > 0 && i % 16 == 0) {
             std::cout << std::endl;
+            std::cout << std::setfill('0') << std::setw(4) << std::hex << i << ": ";
+        }
         else if (i > 0 && i % 2 == 0)
             std::cout << " ";
         std::cout << output[i];
