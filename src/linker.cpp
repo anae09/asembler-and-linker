@@ -130,14 +130,11 @@ void Linker::checkIfUndef()
 Linker::Linker(std::list<std::string> inputFilenames, std::string outputname, bool linkable)
 {
     loadFiles(inputFilenames, linkable);
-    if (linkable)
+    outputFile.open("tests/" + outputname);
+    if (!outputFile)
     {
-        outputFile.open("tests/" + outputname);
-        if (!outputFile)
-        {
-            std::cout << "Error: file " << outputname << std::endl;
-            exit(-1);
-        }
+        std::cout << "Error: file " << outputname << std::endl;
+        exit(-1);
     }
 }
 
@@ -263,7 +260,9 @@ void Linker::runHex()
     addSectionToSymtab();
 
     referenceRelocation();
-    printOutput();
+    // printHexOutput();
+
+    writeHexOutput();
 }
 
 void Linker::referenceRelocation()
@@ -394,14 +393,15 @@ void Linker::printRelocTables()
     }
 }
 
-void Linker::printOutput()
+void Linker::printHexOutput()
 {
     std::cout << std::setfill('0') << std::setw(4) << std::hex << 0 << ": "; // pocetna adresa
     for (unsigned int i = 0; i < output.size(); i++)
     {
         if (!output[i])
             continue;
-        if (i > 0 && i % 16 == 0) {
+        if (i > 0 && i % 16 == 0)
+        {
             std::cout << std::endl;
             std::cout << std::setfill('0') << std::setw(4) << std::hex << i << ": ";
         }
@@ -412,6 +412,25 @@ void Linker::printOutput()
     std::cout << std::endl;
 }
 
+void Linker::writeHexOutput()
+{
+    outputFile << std::setfill('0') << std::setw(4) << std::hex << 0 << ": "; // pocetna adresa
+    for (unsigned int i = 0; i < output.size(); i++)
+    {
+        if (!output[i])
+            continue;
+        if (i > 0 && i % 16 == 0)
+        {
+            outputFile << std::endl;
+            outputFile << std::setfill('0') << std::setw(4) << std::hex << i << ": ";
+        }
+        else if (i > 0 && i % 2 == 0)
+            outputFile << " ";
+        outputFile << output[i];
+    }
+    outputFile << std::endl;
+}
+
 Linker::~Linker()
 {
     std::vector<struct FileInfo *>::iterator iter;
@@ -419,6 +438,8 @@ Linker::~Linker()
     {
         delete *iter;
     }
+    if (outputFile)
+        outputFile.close();
 }
 
 void Linker::runLinkable()

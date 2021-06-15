@@ -26,7 +26,8 @@ private:
     void printSectionTable();
     void printSymbolTable();
     void printRelocTables();
-    void printOutput();
+    void printHexOutput();
+    void writeHexOutput();
     void writeToOutputFile();
     void addSectionToSymtab();
 public:
