@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 				return 0;
 			}
 			if (i < argc) {
-				outputname = std::string(argv[i++]);
+				outputname = "tests/" + std::string(argv[i++]);
 				continue;
 			} else {
 				std::cout << "Error: Missing filename" << std::endl;
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 			//std::cout << p.name << ", " << p.address << std::endl;
 			placements.push_back(p);
 		} else {
-			filenames.push_back(arg);
+			filenames.push_back("tests/" + arg);
 		}
 	}
 

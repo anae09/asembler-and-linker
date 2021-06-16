@@ -16,7 +16,7 @@ void Linker::loadFiles(std::list<std::string> inputFilenames, bool linkable)
     std::list<std::string>::iterator filenamesIter;
     for (filenamesIter = inputFilenames.begin(); filenamesIter != inputFilenames.end(); filenamesIter++)
     {
-        std::ifstream input("tests/" + *filenamesIter, std::ios::binary);
+        std::ifstream input(*filenamesIter, std::ios::binary);
         if (!input)
         {
             std::cout << "File " << *filenamesIter << " not opened" << std::endl;
@@ -130,7 +130,8 @@ void Linker::checkIfUndef()
 Linker::Linker(std::list<std::string> inputFilenames, std::string outputname, bool linkable)
 {
     loadFiles(inputFilenames, linkable);
-    outputFile.open("tests/" + outputname);
+    this->outputFilename = outputname;
+    outputFile.open(outputname);
     if (!outputFile)
     {
         std::cout << "Error: file " << outputname << std::endl;
@@ -501,6 +502,7 @@ void Linker::runLinkable()
     resolveRelocationLinkable();
     addSectionToSymtab();
     writeToOutputFile();
+    outputToBinaryFile();
 }
 
 void Linker::resolveRelocationLinkable()
@@ -681,4 +683,74 @@ void Linker::addSectionToSymtab()
             exit(-2);
         }
     }
+}
+
+int Linker::outputToBinaryFile() {
+    std::ofstream output_bin;
+    output_bin.open(outputFilename + ".bin", std::ios::binary);
+    if (!output_bin)
+    {
+        std::cout << "File " << outputFilename << ".bin not created!" << std::endl;
+        exit(-3);
+    }
+    /* OUTPUT TO BINARY FILE*/
+    /* WRITE HEADER */
+    int numSections = section_table.size();
+    int numRelocTables = 0;
+    std::unordered_map<std::string, struct Section>::iterator iter;
+    for (iter = section_table.begin(); iter != section_table.end(); iter++)
+    {
+        if (iter->second.relocTable.size() > 0) numRelocTables++;
+    }
+    int numSymTabEntries = symbol_table.size();
+    output_bin.write((char *)&numSections, sizeof(int));
+    output_bin.write((char *)&numRelocTables, sizeof(int));
+    output_bin.write((char *)&numSymTabEntries, sizeof(int));
+
+    /* WRITE SECTIONS */
+    for (iter = section_table.begin(); iter != section_table.end(); iter++)
+    {
+        struct Section s = iter->second;
+        std::cout << s.name << ", " << s.size << std::endl;
+
+        output_bin.write(s.name.c_str(), s.name.length() + 1);
+        output_bin.write((char *)&s.size, sizeof(int));
+        output_bin.write(s.machine_code.c_str(), s.machine_code.length() + 1);
+
+        int numRelocEntries = s.relocTable.size();
+        output_bin.write((char *)&numRelocEntries, sizeof(int));
+        
+        std::list<struct RelocationEntry>::iterator relocIter;
+        for (relocIter = s.relocTable.begin(); relocIter != s.relocTable.end(); relocIter++) {
+            int offset = (*relocIter).offset;
+            std::string& symbol = (*relocIter).symbol;
+            RelocType type = (*relocIter).type;
+            output_bin.write((char*)&offset, sizeof(int));
+            output_bin.write((char *)&type, sizeof(RelocType));
+            output_bin.write(symbol.c_str(), symbol.length() + 1);
+        }
+
+        if (!output_bin.good())
+        {
+            std::cout << "Error occurred while writing to binary!" << std::endl;
+            return 1;
+        }
+
+    }
+
+    /* WRITE SYMTAB */
+    std::unordered_map<std::string, struct Symbol>::iterator iterSym;
+
+    for (iterSym = symbol_table.begin(); iterSym != symbol_table.end(); iterSym++)
+    {
+        //std::cout << iterSym->second << std::endl;
+        output_bin.write(iterSym->second.name.c_str(), iterSym->second.name.length() + 1);
+        output_bin.write(iterSym->second.section.c_str(), iterSym->second.section.length() + 1);
+        output_bin.write((char*)&iterSym->second.offset, sizeof(int));
+        output_bin.write((char*)&iterSym->second.type, sizeof(SymType));
+    }
+
+    output_bin.close();
+
+    return 0;
 }

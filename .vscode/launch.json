@@ -9,7 +9,7 @@
                 "type": "cppdbg",
                 "request": "launch",
                 "program": "${workspaceFolder}/linker",
-                "args": ["-o", "zad4.o", "zad41.o.bin", "zad42.o.bin", "-linkable"],
+                "args": ["-o", "zad4.hex", "zad4.o.bin", "-hex", "-place=text@0000"],
                 "stopAtEntry": false,
                 "cwd": "${workspaceFolder}",
                 "environment": [],

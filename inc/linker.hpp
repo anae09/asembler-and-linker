@@ -14,6 +14,7 @@ private:
     std::vector<struct FileInfo*> files;
     std::vector<char> output;
     std::ofstream outputFile;
+    std::string outputFilename;
     int locationCounter = 0;
     int start_address = 0;
 
@@ -32,6 +33,7 @@ private:
     void writeToOutputFile();
     void addSectionToSymtab();
     void writeSectionTable();
+    int outputToBinaryFile();
 public:
     Linker(std::list<std::string> inputFilenames, std::string outputname, bool linkable = false);
     void addSection(std::string section_name, unsigned int start_addr);
