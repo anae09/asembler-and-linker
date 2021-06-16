@@ -1,7 +1,10 @@
+# test
 00 00 00 00 00 00 00 00 00 00 
 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
 # sekcije
 ime	vel.
+test	25
 # tabela simbola
 ime	sekcija	vr	vidlj
+test	test	0	L
 UND	UND	0	

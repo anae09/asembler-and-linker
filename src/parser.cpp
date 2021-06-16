@@ -371,8 +371,9 @@ void Parser::parseJumpOperand(ParserResult *res, std::string arg)
     else if (regex_match(arg, re_jmp_memdir_pc))
     {
         res->size = 5;
-        res->stm->addrMode[0] = AddrType::IMMEDIATE; /**/
+        res->stm->addrMode[0] = AddrType::REGDIRADD; /**/
         res->stm->addrMode[1] = '0';
+        res->stm->regsDescr[0] = '7'; // PC
         res->stm->reloc_type = RelocType::RELATIVE;
         res->symbol = std::regex_replace(arg, std::regex("%"), "");
         res->stm->setDataX();
