@@ -3,10 +3,10 @@ A0 0F 04 00 00
 50 F7 05 FF FE
 # bss
 00 00 00 00 00 
-55 55  
+55 55 
 # data
 00 00 
-77 77  
+77 77 
 # sekcije
 ime	vel.
 text	10
@@ -24,5 +24,5 @@ a	text	5	G
 UND	UND	0	
 # rel.text
 offset	tip	simbol
-3	R_16	a
-8	R_PC16	c
+3	R_INSTR_16	a
+8	R_INSTR_PC16	c

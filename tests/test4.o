@@ -20,7 +20,7 @@ test	test	0	L
 UND	UND	0	
 # rel.test
 offset	tip	simbol
-0	R_16	start
-2	R_16	test
-4	R_16	test
-6	R_16	test
+0	R_DATA_16	start
+2	R_DATA_16	test
+4	R_DATA_16	test
+6	R_DATA_16	test

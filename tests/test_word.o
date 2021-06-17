@@ -16,4 +16,4 @@ wtest	wtest	0	L
 UND	UND	0	
 # rel.wtest
 offset	tip	simbol
-6	R_16	wtest
+6	R_DATA_16	wtest

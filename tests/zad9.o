@@ -32,16 +32,16 @@ a	data	14	G
 UND	UND	0	
 # rel.data
 offset	tip	simbol
-8	R_16	a
-10	R_16	c
-12	R_16	bss
-14	R_16	b
+8	R_DATA_16	a
+10	R_DATA_16	c
+12	R_DATA_16	bss
+14	R_DATA_16	b
 # rel.text
 offset	tip	simbol
-3	R_PC16	a
-8	R_PC16	data
-13	R_PC16	b
-20	R_16	text
-25	R_16	b
-30	R_16	c
-35	R_16	data
+3	R_INSTR_PC16	a
+8	R_INSTR_PC16	data
+13	R_INSTR_PC16	b
+20	R_DATA_16	text
+25	R_INSTR_16	b
+30	R_INSTR_16	c
+35	R_INSTR_16	data

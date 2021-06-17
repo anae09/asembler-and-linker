@@ -5,7 +5,7 @@
 A0 5F 04 00 00
 00 00 00 00 00 00 00 00 00 00 
 # bss
-66 66  
+66 66 
 # sekcije
 ime	vel.
 text	10
@@ -22,7 +22,7 @@ c	bss	0	G
 UND	UND	0	
 # rel.data
 offset	tip	simbol
-3	R_16	bss
+3	R_INSTR_16	bss
 # rel.text
 offset	tip	simbol
-3	R_PC16	d
+3	R_INSTR_PC16	d

@@ -13,7 +13,7 @@
 50 F3 03 00 00
 # data
 00 00 00 
-FF FF  
+FF FF 
 # sekcije
 ime	vel.
 start	56
@@ -29,8 +29,8 @@ f	UND	0	G
 UND	UND	0	
 # rel.start
 offset	tip	simbol
-3	R_16	start
-13	R_PC16	data
-18	R_PC16	f
-28	R_16	start
-54	R_16	start
+3	R_INSTR_16	start
+13	R_INSTR_PC16	data
+18	R_INSTR_PC16	f
+28	R_INSTR_16	start
+54	R_INSTR_16	start

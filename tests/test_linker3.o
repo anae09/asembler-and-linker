@@ -17,5 +17,5 @@ LABELA	bss	4	L
 UND	UND	0	
 # rel.text
 offset	tip	simbol
-3	R_16	g
-8	R_PC16	bss
+3	R_INSTR_16	g
+8	R_INSTR_PC16	bss

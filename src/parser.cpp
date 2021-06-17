@@ -231,7 +231,7 @@ void Parser::parseOperand(ParserResult *res, std::string arg)
         }
         else
         { // symbol
-            res->stm->reloc_type = RelocType::ABSOLUTE;
+            res->stm->reloc_type = RelocType::R_INSTR_16;
             res->symbol = arg;
             res->stm->setDataX();
         }
@@ -241,7 +241,7 @@ void Parser::parseOperand(ParserResult *res, std::string arg)
         res->size = 5;
         res->stm->addrMode[0] = AddrType::MEM;
         res->stm->addrMode[1] = '0';
-        res->stm->reloc_type = RelocType::RELATIVE;
+        res->stm->reloc_type = RelocType::R_INSTR_PC16;
         res->symbol = std::regex_replace(arg, std::regex("%"), "");
         res->stm->setDataX();
     }
@@ -282,7 +282,7 @@ void Parser::parseOperand(ParserResult *res, std::string arg)
             }
             else
             { // symbol
-                res->stm->reloc_type = RelocType::ABSOLUTE;
+                res->stm->reloc_type = RelocType::R_INSTR_16;
                 res->symbol = tmp;
                 res->stm->setDataX();
             }
@@ -299,7 +299,7 @@ void Parser::parseOperand(ParserResult *res, std::string arg)
         }
         else
         { // symbol
-            res->stm->reloc_type = RelocType::ABSOLUTE;
+            res->stm->reloc_type = RelocType::R_INSTR_16;
             res->symbol = arg;
             res->stm->setDataX();
         }
@@ -346,7 +346,7 @@ void Parser::parseJumpOperand(ParserResult *res, std::string arg)
             }
             else
             { // symbol
-                res->stm->reloc_type = RelocType::ABSOLUTE;
+                res->stm->reloc_type = RelocType::R_INSTR_16;
                 res->symbol = tmp;
                 res->stm->setDataX();
             }
@@ -364,7 +364,7 @@ void Parser::parseJumpOperand(ParserResult *res, std::string arg)
         }
         else
         { // symbol
-            res->stm->reloc_type = RelocType::ABSOLUTE;
+            res->stm->reloc_type = RelocType::R_INSTR_16;
             res->symbol = arg;
             res->stm->setDataX();
         }
@@ -375,7 +375,7 @@ void Parser::parseJumpOperand(ParserResult *res, std::string arg)
         res->stm->addrMode[0] = AddrType::REGDIRADD; /**/
         res->stm->addrMode[1] = '0';
         res->stm->regsDescr[0] = '7'; // PC
-        res->stm->reloc_type = RelocType::RELATIVE;
+        res->stm->reloc_type = RelocType::R_INSTR_PC16;
         res->symbol = std::regex_replace(arg, std::regex("%"), "");
         res->stm->setDataX();
     }
@@ -390,7 +390,7 @@ void Parser::parseJumpOperand(ParserResult *res, std::string arg)
         }
         else
         { // symbol
-            res->stm->reloc_type = RelocType::ABSOLUTE;
+            res->stm->reloc_type = RelocType::R_INSTR_16;
             res->symbol = arg;
             res->stm->setDataX();
         }

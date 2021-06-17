@@ -16,4 +16,4 @@ f	ABS	3	G
 UND	UND	0	
 # rel.data
 offset	tip	simbol
-0	R_16	c
+0	R_DATA_16	c

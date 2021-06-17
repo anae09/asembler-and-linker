@@ -3,7 +3,7 @@
 00 00  
 # data
 00 00 00 00 00 00 
-00 11  
+11 00 
 # bss
 00 00 00 00 
 # sekcije
@@ -23,5 +23,5 @@ a	ABS	2	G
 UND	UND	0	
 # rel.text
 offset	tip	simbol
-3	R_16	e
-5	R_16	data
+3	R_INSTR_16	e
+5	R_DATA_16	data

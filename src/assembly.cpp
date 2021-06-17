@@ -191,22 +191,22 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
                 if (!symtab[arg].section.compare("ABS"))
                 {
                     std::string hexValue = Parser::literalToHex(symtab[arg].offset);
-                    outputHex(hexValue);
-                    outputHexToBinary(hexValue);
+                    outputDataHex(hexValue);
+                    outputDataHexToBinary(hexValue);
                     continue;
                 }
                 RelocationEntry entry;
                 // output << "XX XX ";
                 if (symtab[arg].type == SymType::GLOBALSYM)
                 { // -> ABSOLUTE
-                    entry.initEntry(locationCounter, arg, RelocType::ABSOLUTE);
+                    entry.initEntry(locationCounter, arg, RelocType::R_DATA_16);
                     output << "00 00 ";
                     if (outputSection) outputSection->machine_code += "0000";
                 }
                 else // LOCAL SYM
                 {
                     // output {symbolOFfset}
-                    entry.initEntry(locationCounter, symtab[arg].section, RelocType::ABSOLUTE);
+                    entry.initEntry(locationCounter, symtab[arg].section, RelocType::R_DATA_16);
                     std::string hexValue = Parser::literalToHex(symtab[arg].offset);
                     outputHex(hexValue);
                     outputHexToBinary(hexValue);
@@ -235,7 +235,7 @@ void Assembly::generateRelocEntry(ParserResult *res)
         exit(-2);
         // symtab[res->symbol].initSymbol(res->symbol, undefined_section, SymType::GLOBALSYM);
     }
-    if (res->stm->reloc_type == RelocType::ABSOLUTE)
+    if (res->stm->reloc_type == RelocType::R_INSTR_16)
     {
         if (!symtab[res->symbol].section.compare("ABS"))
         {
@@ -244,12 +244,12 @@ void Assembly::generateRelocEntry(ParserResult *res)
         }
         if (symtab[res->symbol].type == SymType::LOCALSYM)
         {
-            entry.initEntry(locationCounter - PAYLOAD_SIZE, symtab[res->symbol].section, RelocType::ABSOLUTE);
+            entry.initEntry(locationCounter - PAYLOAD_SIZE, symtab[res->symbol].section, RelocType::R_INSTR_16);
             Parser::writeLiteralToHex(symtab[res->symbol].offset, res);
         }
         else // GLOBALSYM
         {
-            entry.initEntry(locationCounter - PAYLOAD_SIZE, res->symbol, RelocType::ABSOLUTE);
+            entry.initEntry(locationCounter - PAYLOAD_SIZE, res->symbol, RelocType::R_INSTR_16);
             res->stm->setDataZero();
         }
     }
@@ -257,7 +257,7 @@ void Assembly::generateRelocEntry(ParserResult *res)
     {
         if (symtab[res->symbol].type == SymType::GLOBALSYM || !symtab[res->symbol].section.compare("ABS")) // GLOBALSYM
         {
-            entry.initEntry(locationCounter - PAYLOAD_SIZE, res->symbol, RelocType::RELATIVE);
+            entry.initEntry(locationCounter - PAYLOAD_SIZE, res->symbol, RelocType::R_INSTR_PC16);
             res->stm->setDataPCRel();
         }
         else // LOCALSYM
@@ -271,7 +271,7 @@ void Assembly::generateRelocEntry(ParserResult *res)
             }
             Parser::writeLiteralToHex(symtab[res->symbol].offset - PAYLOAD_SIZE, res);
 
-            entry.initEntry(locationCounter - PAYLOAD_SIZE, symtab[res->symbol].section, RelocType::RELATIVE);
+            entry.initEntry(locationCounter - PAYLOAD_SIZE, symtab[res->symbol].section, RelocType::R_INSTR_PC16);
         }
     }
 

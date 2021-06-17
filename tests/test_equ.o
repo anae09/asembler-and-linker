@@ -13,4 +13,4 @@ a	ABS	2	G
 UND	UND	0	
 # rel.text
 offset	tip	simbol
-10	R_PC16	b
+10	R_INSTR_PC16	b
