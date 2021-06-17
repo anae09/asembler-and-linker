@@ -16,6 +16,10 @@ void Linker::loadFiles(std::list<std::string> inputFilenames, bool linkable)
     std::list<std::string>::iterator filenamesIter;
     for (filenamesIter = inputFilenames.begin(); filenamesIter != inputFilenames.end(); filenamesIter++)
     {
+        if ((*filenamesIter).find("bin", 0) == std::string::npos) {
+            std::cout << "Error: " << *filenamesIter << "; format not recognized" << std::endl;
+            exit(-2);
+        }
         std::ifstream input(*filenamesIter, std::ios::binary);
         if (!input)
         {
@@ -176,7 +180,7 @@ void Linker::sectionPlacement()
         if (map_iter == sections_ordered.begin()) {
             start_address = map_iter->first;
         }
-        std::cout << map_iter->second << "\t" << map_iter->first << std::endl;
+        // std::cout << map_iter->second << "\t" << map_iter->first << std::endl;
         if (map_iter->first < locationCounter)
         {
             std::cout << "Error: " << map_iter->second << " address overlap" << std::endl;
@@ -497,8 +501,8 @@ void Linker::runLinkable()
             }
         }
     }
-    printSymbolTable();
-    printSectionTable();
+    //printSymbolTable();
+    //printSectionTable();
     resolveRelocationLinkable();
     addSectionToSymtab();
     writeToOutputFile();
@@ -711,7 +715,7 @@ int Linker::outputToBinaryFile() {
     for (iter = section_table.begin(); iter != section_table.end(); iter++)
     {
         struct Section s = iter->second;
-        std::cout << s.name << ", " << s.size << std::endl;
+        // std::cout << s.name << ", " << s.size << std::endl;
 
         output_bin.write(s.name.c_str(), s.name.length() + 1);
         output_bin.write((char *)&s.size, sizeof(int));
