@@ -9,7 +9,7 @@
                 "type": "cppdbg",
                 "request": "launch",
                 "program": "${workspaceFolder}/linker",
-                "args": ["-o", "output.hex", "test_linker1.o.bin", "test_linker2.o.bin", "test_linker3.o.bin", "-hex"],
+                "args": ["-hex", "-place=ivt@0x0000", "-o", "program.hex", "interrupts.o.bin", "main.o.bin"],
                 "stopAtEntry": false,
                 "cwd": "${workspaceFolder}",
                 "environment": [],

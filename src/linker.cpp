@@ -447,7 +447,7 @@ void Linker::printHexOutput()
 
 void Linker::writeHexOutput()
 {
-    outputFile << std::setfill('0') << std::setw(4) << std::hex << start_address << ": "; // pocetna adresa
+    outputFile << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << start_address << ": "; // pocetna adresa
     for (unsigned int i = 0; i < output.size(); i++)
     {
         if (i > 0 && i % 16 == 0)
