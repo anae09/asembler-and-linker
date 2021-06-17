@@ -18,8 +18,8 @@ int main(int argc, char *argv[])
 
     Assembly as("tests/" + inputFilename, "tests/" + outputFilename);
 
-    if (!as.assemble()) 
-        std::cout << "Success" << std::endl;
+    as.assemble();
+    //std::cout << "Success" << std::endl;
     
     return 0;
 }

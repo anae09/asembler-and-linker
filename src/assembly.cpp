@@ -385,7 +385,7 @@ int Assembly::outputToBinaryFile()
     for (iter = sectionList.begin(); iter != sectionList.end(); iter++)
     {
         struct Section s = **iter;
-        std::cout << s.name << ", " << s.size << std::endl;
+        //std::cout << s.name << ", " << s.size << std::endl;
 
         output_bin.write(s.name.c_str(), s.name.length() + 1);
         output_bin.write((char *)&s.size, sizeof(int));
@@ -519,6 +519,7 @@ void Assembly::outputRelocTable()
     std::list<struct RelocationEntry>::iterator relocIter;
     for (iter = reloctab.begin(); iter != reloctab.end(); iter++)
     {
+        if (iter->second.size() == 0) continue;
         output << "# rel." << iter->first << std::endl;
         std::list<struct RelocationEntry> &lst = iter->second;
         output << "offset"
