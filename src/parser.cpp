@@ -4,6 +4,7 @@
 #include <regex>
 #include <string.h>
 #include <stdexcept>
+#include <iomanip>
 #include "parser.hpp"
 
 Parser *Parser::parser = nullptr;
@@ -607,12 +608,15 @@ std::string Parser::literalToHex(std::string arg, std::string& line)
             exit(-1);
         }
         std::stringstream stream;
-        stream << std::uppercase << std::hex << num;
+        stream << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << num;
         result = stream.str();
     }
     else
     {
         result = std::regex_replace(arg, std::regex("0x"), "");
+        for (int i = result.size(); i < 4; i++) {
+            result = "0" + result;
+        }
     }
 
     return result;

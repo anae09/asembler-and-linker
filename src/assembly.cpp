@@ -216,8 +216,8 @@ int Assembly::parseDirectiveSecondPass(ParserResult *res)
             else
             {
                 std::string hexValue = Parser::literalToHex(arg, res->line);
-                outputHex(hexValue);
-                outputHexToBinary(hexValue);
+                outputDataHex(hexValue);
+                outputDataHexToBinary(hexValue);
             }
             locationCounter += WORD_SIZE;
         }
@@ -461,6 +461,13 @@ void Assembly::outputHex(std::string hexValue)
     output << " ";
 }
 
+void Assembly::outputDataHex(std::string hexValue) {
+    // std::cout << hexValue << std::endl;
+    output << hexValue[2] << hexValue[3] << " ";
+    output << hexValue[0] << hexValue[1];
+    output << " ";
+}
+
 void Assembly::outputHexToBinary(std::string hexValue) {
     if (!outputSection) return;
     for (int i = 3; i >= 0; i--)
@@ -475,6 +482,14 @@ void Assembly::outputHexToBinary(std::string hexValue) {
         }
             
     }
+}
+
+void Assembly::outputDataHexToBinary(std::string hexValue) {
+     outputSection->machine_code += hexValue[2];
+     outputSection->machine_code += hexValue[3];
+     //outputSection->machine_code += " ";
+     outputSection->machine_code += hexValue[0];
+     outputSection->machine_code += hexValue[1];
 }
 
 void Assembly::printSymbolTable()

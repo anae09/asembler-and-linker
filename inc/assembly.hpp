@@ -37,6 +37,8 @@ private:
     int outputToBinaryFile();
     void generateRelocEntry(ParserResult* res);
     void outputHex(std::string hexValue);
+    void outputDataHex(std::string hexValue);
+    void outputDataHexToBinary(std::string hexValue);
     void outputHexToBinary(std::string hexValue);
     void printSections();
     void outputSections();
