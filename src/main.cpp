@@ -59,6 +59,7 @@ int main(int argc, char* argv[])
 		else if (!arg.compare("-linkable")) {
 			if (output_type != outputType::NO_TYPE) {
 				std::cout << "Error: output type already defined" << std::endl;
+				return 0;
 			} else {
 				output_type = outputType::LINKABLE;
 			}
@@ -66,6 +67,7 @@ int main(int argc, char* argv[])
 		else if (!arg.compare("-hex")) {
 			if (output_type != outputType::NO_TYPE) {
 				std::cout << "Error: output type already defined" << std::endl;
+				return 0;
 			} else {
 				output_type = outputType::HEX;
 			}
@@ -90,6 +92,11 @@ int main(int argc, char* argv[])
 
 	if (output_type == outputType::NO_TYPE) {
 		std::cout << "Error: output type not defined" << std::endl;
+		return 0;
+	}
+
+	if (filenames.size() == 0) {
+		std::cout << "Error: input files not defined" << std::endl;
 		return 0;
 	}
 
