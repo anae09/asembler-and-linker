@@ -75,6 +75,10 @@ int main(int argc, char* argv[])
 			//std::cout << p.name << ", " << p.address << std::endl;
 			placements.push_back(p);
 		} else {
+			if (arg.find('-',0) == 0) {
+				std::cout << "Error: option " << arg << " not recognized" << std::endl;
+				return 0; 
+			}
 			filenames.push_back("tests/" + arg);
 		}
 	}
