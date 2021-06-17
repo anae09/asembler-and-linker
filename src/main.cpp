@@ -49,7 +49,12 @@ int main(int argc, char* argv[])
 				return 0;
 			}
 			if (i < argc) {
-				outputname = "tests/" + std::string(argv[i++]);
+				std::string file = std::string(argv[i++]);
+				if (file.find('-', 0) == 0) {
+					std::cout << "Error: expected filename" << std::endl;
+					return 0;
+				}
+				outputname = "tests/" + file;
 				continue;
 			} else {
 				std::cout << "Error: Missing filename" << std::endl;

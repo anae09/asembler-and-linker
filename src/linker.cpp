@@ -16,7 +16,8 @@ void Linker::loadFiles(std::list<std::string> inputFilenames, bool linkable)
     std::list<std::string>::iterator filenamesIter;
     for (filenamesIter = inputFilenames.begin(); filenamesIter != inputFilenames.end(); filenamesIter++)
     {
-        if ((*filenamesIter).find("bin", 0) == std::string::npos) {
+        if ((*filenamesIter).find("bin", 0) == std::string::npos)
+        {
             std::cout << "Error: " << *filenamesIter << "; format not recognized" << std::endl;
             exit(-2);
         }
@@ -177,7 +178,8 @@ void Linker::sectionPlacement()
 
     for (map_iter = sections_ordered.begin(); map_iter != sections_ordered.end(); map_iter++)
     {
-        if (map_iter == sections_ordered.begin()) {
+        if (map_iter == sections_ordered.begin())
+        {
             start_address = map_iter->first;
         }
         // std::cout << map_iter->second << "\t" << map_iter->first << std::endl;
@@ -305,36 +307,46 @@ void Linker::referenceRelocation()
                 stream >> x;
                 stream.clear();
                 stream.str(std::string());
-                if (reloc_entry.type == RelocType::RELATIVE)
+                if (reloc_entry.type == RelocType::R_INSTR_PC16)
                 {
                     if (symbol_table[reloc_entry.symbol].type == SymType::LOCALSYM)
                     {
-                        stream << std::uppercase << std::hex << (files[i]->section_table[reloc_entry.symbol].start_addr + x - reloc_entry.offset);
+                        stream << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << (files[i]->section_table[reloc_entry.symbol].start_addr + x - reloc_entry.offset);
                     }
                     else
                     {
-                        stream << std::uppercase << std::hex << (symbol_table[reloc_entry.symbol].offset + x - reloc_entry.offset);
+                        stream << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << (symbol_table[reloc_entry.symbol].offset + x - reloc_entry.offset);
                     }
                 }
-                else if (reloc_entry.type == RelocType::ABSOLUTE)
+                else if (reloc_entry.type == RelocType::R_INSTR_16 || reloc_entry.type == RelocType::R_DATA_16)
                 {
                     if (symbol_table[reloc_entry.symbol].type == SymType::LOCALSYM)
                     {
-                        stream << std::uppercase << std::hex << (files[i]->section_table[reloc_entry.symbol].start_addr + x);
+                        stream << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << (files[i]->section_table[reloc_entry.symbol].start_addr + x);
                     }
                     else
                     {
-                        stream << std::uppercase << std::hex << symbol_table[reloc_entry.symbol].offset;
+                        stream << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << symbol_table[reloc_entry.symbol].offset;
                     }
                 }
                 std::string hex_value = stream.str();
-                for (int i = 3; i >= 0; i--)
+                if (reloc_entry.type == RelocType::R_DATA_16)
                 {
-                    if (i < hex_value.length())
-                        output[refptr] = hex_value[hex_value.length() - 1 - i];
-                    else
-                        output[refptr] = '0';
-                    refptr++;
+                    output[refptr++] = hex_value[2];
+                    output[refptr++] = hex_value[3];
+                    output[refptr++] = hex_value[0];
+                    output[refptr++] = hex_value[1];
+                }
+                else
+                {
+                    for (int i = 3; i >= 0; i--)
+                    {
+                        if (i < hex_value.length())
+                            output[refptr] = hex_value[hex_value.length() - 1 - i];
+                        else
+                            output[refptr] = '0';
+                        refptr++;
+                    }
                 }
             }
         }
@@ -360,9 +372,9 @@ void Linker::writeSectionTable()
     outputFile << "# sekcije" << std::endl;
     std::unordered_map<std::string, struct Section>::iterator iter;
     outputFile << "ime"
-              << "\t"
-              << "vel."
-              << std::endl;
+               << "\t"
+               << "vel."
+               << std::endl;
     for (iter = section_table.begin(); iter != section_table.end(); iter++)
     {
         outputFile << iter->second.name << "\t" << iter->second.size << std::endl;
@@ -424,7 +436,7 @@ void Linker::printHexOutput()
         if (i > 0 && i % 16 == 0)
         {
             std::cout << std::endl;
-            std::cout << std::setfill('0') << std::setw(4) << std::hex << (start_address+i) << ": ";
+            std::cout << std::setfill('0') << std::setw(4) << std::hex << (start_address + i) << ": ";
         }
         else if (i > 0 && i % 2 == 0)
             std::cout << " ";
@@ -441,12 +453,14 @@ void Linker::writeHexOutput()
         if (i > 0 && i % 16 == 0)
         {
             outputFile << std::endl;
-            outputFile << std::setfill('0') << std::setw(4) << std::hex << (start_address+i) << ": ";
+            outputFile << std::setfill('0') << std::setw(4) << std::hex << (start_address + i) << ": ";
         }
         else if (i > 0 && i % 2 == 0)
             outputFile << " ";
-        if (output[i])  outputFile << output[i];
-        else outputFile << "0";
+        if (output[i])
+            outputFile << output[i];
+        else
+            outputFile << "0";
     }
     outputFile << std::endl;
 }
@@ -524,7 +538,7 @@ void Linker::resolveRelocationLinkable()
             {
                 if (symbol_table.find(reloc_iter->symbol) != symbol_table.end() && symbol_table[reloc_iter->symbol].type == SymType::GLOBALSYM) // u TS svi globalni
                 {
-                    if (!symbol_table[reloc_iter->symbol].section.compare(currentSection.name) && reloc_iter->type == RelocType::RELATIVE)
+                    if (!symbol_table[reloc_iter->symbol].section.compare(currentSection.name) && reloc_iter->type == RelocType::R_INSTR_PC16)
                     {
                         // sekcija simbola u relokac. zapisu == trenutnoj sekciji && PCREL ==> ne dodaje se relok. zapis
                         // izracunava se pomeraj odmah
@@ -560,7 +574,7 @@ void Linker::resolveRelocationLinkable()
                 }
                 else // sigurno je lokalni simbol
                 {
-                    if (reloc_iter->type == RelocType::RELATIVE && !reloc_iter->symbol.compare(currentSection.name))
+                    if (reloc_iter->type == RelocType::R_INSTR_PC16 && !reloc_iter->symbol.compare(currentSection.name))
                     {
                         // da li moze da se desi??
                         std::cout << "483" << std::endl;
@@ -626,7 +640,8 @@ void Linker::writeToOutputFile()
         }
         outputFile << std::endl;
 
-        if (iter_section->second.relocTable.size() == 0) continue;
+        if (iter_section->second.relocTable.size() == 0)
+            continue;
 
         outputFile << "# rel." << iter_section->second.name << std::endl;
         std::list<struct RelocationEntry>::iterator relocIter;
@@ -689,7 +704,8 @@ void Linker::addSectionToSymtab()
     }
 }
 
-int Linker::outputToBinaryFile() {
+int Linker::outputToBinaryFile()
+{
     std::ofstream output_bin;
     output_bin.open(outputFilename + ".bin", std::ios::binary);
     if (!output_bin)
@@ -704,7 +720,8 @@ int Linker::outputToBinaryFile() {
     std::unordered_map<std::string, struct Section>::iterator iter;
     for (iter = section_table.begin(); iter != section_table.end(); iter++)
     {
-        if (iter->second.relocTable.size() > 0) numRelocTables++;
+        if (iter->second.relocTable.size() > 0)
+            numRelocTables++;
     }
     int numSymTabEntries = symbol_table.size();
     output_bin.write((char *)&numSections, sizeof(int));
@@ -723,13 +740,14 @@ int Linker::outputToBinaryFile() {
 
         int numRelocEntries = s.relocTable.size();
         output_bin.write((char *)&numRelocEntries, sizeof(int));
-        
+
         std::list<struct RelocationEntry>::iterator relocIter;
-        for (relocIter = s.relocTable.begin(); relocIter != s.relocTable.end(); relocIter++) {
+        for (relocIter = s.relocTable.begin(); relocIter != s.relocTable.end(); relocIter++)
+        {
             int offset = (*relocIter).offset;
-            std::string& symbol = (*relocIter).symbol;
+            std::string &symbol = (*relocIter).symbol;
             RelocType type = (*relocIter).type;
-            output_bin.write((char*)&offset, sizeof(int));
+            output_bin.write((char *)&offset, sizeof(int));
             output_bin.write((char *)&type, sizeof(RelocType));
             output_bin.write(symbol.c_str(), symbol.length() + 1);
         }
@@ -739,7 +757,6 @@ int Linker::outputToBinaryFile() {
             std::cout << "Error occurred while writing to binary!" << std::endl;
             return 1;
         }
-
     }
 
     /* WRITE SYMTAB */
@@ -750,8 +767,8 @@ int Linker::outputToBinaryFile() {
         //std::cout << iterSym->second << std::endl;
         output_bin.write(iterSym->second.name.c_str(), iterSym->second.name.length() + 1);
         output_bin.write(iterSym->second.section.c_str(), iterSym->second.section.length() + 1);
-        output_bin.write((char*)&iterSym->second.offset, sizeof(int));
-        output_bin.write((char*)&iterSym->second.type, sizeof(SymType));
+        output_bin.write((char *)&iterSym->second.offset, sizeof(int));
+        output_bin.write((char *)&iterSym->second.type, sizeof(SymType));
     }
 
     output_bin.close();

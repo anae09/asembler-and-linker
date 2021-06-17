@@ -9,7 +9,16 @@ void RelocationEntry::initEntry(int offset, std::string symbol, RelocType type)
 
 std::ostream &operator<<(std::ostream &os, const RelocationEntry &entry)
 {
-    os << entry.offset << "\t" << (entry.type == RelocType::ABSOLUTE ? "R_16" : "R_PC16")
-       << "\t" << entry.symbol;
+    std::string reloc_type;
+    if (entry.type == RelocType::R_DATA_16) {
+        reloc_type = "R_DATA_16";
+    } else if (entry.type == RelocType::R_INSTR_16) {
+        reloc_type = "R_INSTR_16";
+    } else if (entry.type == RelocType::R_INSTR_PC16) {
+        reloc_type = "R_INSTR_PC16";
+    } else {
+        reloc_type = "NONE";
+    }
+    os << entry.offset << "\t" << reloc_type << "\t" << entry.symbol;
     return os;
 }
