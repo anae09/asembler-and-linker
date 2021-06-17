@@ -241,7 +241,7 @@ void Parser::parseOperand(ParserResult *res, std::string arg)
         res->size = 5;
         res->stm->addrMode[0] = AddrType::REGINDPOM;
         res->stm->addrMode[1] = '0';
-        //res->stm->regsDescr[0] = '7';
+        res->stm->regsDescr[0] = '7';
         res->stm->reloc_type = RelocType::R_INSTR_PC16;
         res->symbol = std::regex_replace(arg, std::regex("%"), "");
         res->stm->setDataX();

@@ -1,0 +1,51 @@
+# ivt
+00 00  
+00 00 
+00 05  
+00 16  
+00 00 00 00 00 00 00 00 
+# isr
+50 FF 00 00 00
+B0 06 12
+A0 0F 00 00 54
+B0 0F 04 FF 00
+A0 06 42
+20
+B0 06 12
+B0 16 12
+A0 0F 04 FF 02
+B0 0F 04 FF 00
+A0 07 03 FF FE
+A0 1F 00 00 01
+70 01
+B0 0F 04 00 00
+A0 16 42
+A0 06 42
+20
+# sekcije
+ime	vel.
+ivt	16
+isr	62
+# tabela simbola
+ime	sekcija	vr	vidlj
+isr_terminal	isr	22	L
+isr_reset	isr	0	L
+term_out	ABS	65280	L
+myCounter	UND	0	G
+asciiCode	ABS	84	L
+term_in	ABS	65282	L
+myStart	UND	0	G
+isr_timer	isr	5	L
+ivt	ivt	0	L
+isr	isr	0	L
+UND	UND	0	
+# rel.isr
+offset	tip	simbol
+3	R_INSTR_16	myStart
+41	R_INSTR_PC16	myCounter
+53	R_INSTR_16	myCounter
+# rel.ivt
+offset	tip	simbol
+0	R_DATA_16	isr
+4	R_DATA_16	isr
+6	R_DATA_16	isr
