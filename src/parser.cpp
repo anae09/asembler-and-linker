@@ -128,7 +128,7 @@ DirectiveType Parser::parseDirective(std::string dir)
     return DirectiveType::UNDEFINED_DIR;
 }
 
-char Parser::parseRegister(std::string &reg, std::string& line)
+char Parser::parseRegister(std::string &reg, std::string &line)
 {
     if (!reg.compare("sp"))
         return '6';
@@ -136,14 +136,16 @@ char Parser::parseRegister(std::string &reg, std::string& line)
         return '7';
     if (!reg.compare("psw"))
         return '8';
-    if (reg[0] == 'r'){
-        if (reg.size() > 2 || reg[1] > '8') {
+    if (reg[0] == 'r')
+    {
+        if (reg.size() > 2 || reg[1] > '8')
+        {
             std::cout << "Error in line: " << line << "; undefined register: " << reg << std::endl;
             exit(-1);
         }
         return reg[1];
     }
-    
+
     std::cout << "Error in line: " << line << "; undefined register: " << reg << std::endl;
     exit(-1);
 
@@ -184,7 +186,7 @@ void Parser::parseLiteral(ParserResult *res, std::string arg)
         }
         catch (std::invalid_argument)
         {
-            std::cout << "Error in line: " << res->line <<"; " << arg << " is invalid" << std::endl;
+            std::cout << "Error in line: " << res->line << "; " << arg << " is invalid" << std::endl;
             exit(-1);
         }
         catch (std::out_of_range)
@@ -450,7 +452,8 @@ ParserResult *Parser::parse(std::string line, bool checkAfterLabel)
     if (checkAfterLabel)
     {
         line = std::regex_replace(line, std::regex(labelDetected), "");
-        if (regex_match(line, std::regex(".*:.*"))) {
+        if (regex_match(line, std::regex(".*:.*")))
+        {
             std::cout << "Error in line: " << line << "; multiple labels" << std::endl;
             exit(-1);
         }
@@ -514,7 +517,8 @@ ParserResult *Parser::parse(std::string line, bool checkAfterLabel)
             delete res;
             return nullptr;
         }
-        if(parseInstruction(instructions[tokens[0]], res, tokens[1])) {
+        if (parseInstruction(instructions[tokens[0]], res, tokens[1]))
+        {
             std::cout << "Error in line: " << line << "; undefined instruction" << std::endl;
         }
     }
@@ -553,13 +557,20 @@ ParserResult *Parser::parse(std::string line, bool checkAfterLabel)
     return res;
 }
 
-int Parser::getLiteralValue(std::string literal, std::string& line)
+int Parser::getLiteralValue(std::string literal, std::string &line)
 {
     int x;
-    if (std::regex_match(literal, std::regex("^0x.*")))
+    if (literal.find('0', 0) == 0)
     {
         std::stringstream stream;
-        stream << std::hex << literal;
+        if (literal.find('x', 1) == 1)
+        {
+            stream << std::hex << literal;
+        }
+        else
+        {
+            stream << std::oct << literal;
+        }
         stream >> x;
     }
     else
@@ -587,35 +598,45 @@ bool Parser::isSymbol(std::string arg)
     return !std::regex_match(arg, std::regex("\\d+.*"));
 }
 
-std::string Parser::literalToHex(std::string arg, std::string& line)
+std::string Parser::literalToHex(std::string arg, std::string &line)
 {
     std::string result;
     std::regex re_hex("^0x.*");
     if (!std::regex_match(arg, re_hex))
     {
         int num;
-        try
-        {
-            num = stoi(arg);
-        }
-        catch (std::invalid_argument)
-        {
-            std::cout << "Error in line: " << line << "; " << arg << " is invalid" << std::endl;
-            exit(-1);
-        }
-        catch (std::out_of_range)
-        {
-            std::cout << "Error in line: " << line << "; " << arg << " is out of range" << std::endl;
-            exit(-1);
-        }
         std::stringstream stream;
+        if (arg[0] != '0')
+        {
+            try
+            {
+                num = stoi(arg);
+            }
+            catch (std::invalid_argument)
+            {
+                std::cout << "Error in line: " << line << "; " << arg << " is invalid" << std::endl;
+                exit(-1);
+            }
+            catch (std::out_of_range)
+            {
+                std::cout << "Error in line: " << line << "; " << arg << " is out of range" << std::endl;
+                exit(-1);
+            }
+        } else {
+            stream << std::oct << arg;
+            stream >> num;
+            stream.clear();
+            stream.str(std::string());
+        }
+
         stream << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << num;
         result = stream.str();
     }
     else
     {
         result = std::regex_replace(arg, std::regex("0x"), "");
-        for (int i = result.size(); i < 4; i++) {
+        for (int i = result.size(); i < 4; i++)
+        {
             result = "0" + result;
         }
     }
