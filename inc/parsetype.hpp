@@ -1,3 +1,0 @@
-#pragma once
-
-enum ParseType {COMMENT=50, DIRECTIVE, INSTRUCTION, LABEL, UNDEFINED};
