@@ -560,6 +560,7 @@ ParserResult *Parser::parse(std::string line, bool checkAfterLabel)
 int Parser::getLiteralValue(std::string literal, std::string &line)
 {
     int x;
+    std::cout << literal << std::endl;
     if (literal.find('0', 0) == 0)
     {
         std::stringstream stream;
@@ -595,7 +596,7 @@ int Parser::getLiteralValue(std::string literal, std::string &line)
 
 bool Parser::isSymbol(std::string arg)
 {
-    return !std::regex_match(arg, std::regex("\\d+.*"));
+    return !std::regex_match(arg, std::regex("\\d+.*")) && arg[0] != '\'';
 }
 
 std::string Parser::literalToHex(std::string arg, std::string &line)
@@ -608,21 +609,32 @@ std::string Parser::literalToHex(std::string arg, std::string &line)
         std::stringstream stream;
         if (arg[0] != '0')
         {
-            try
+            if (arg[0] == '\'')
             {
-                num = stoi(arg);
+                //std::cout << arg << std::endl;
+                //std::cout << arg[1] << std::endl;
+                num = (int)arg[1];
             }
-            catch (std::invalid_argument)
+            else
             {
-                std::cout << "Error in line: " << line << "; " << arg << " is invalid" << std::endl;
-                exit(-1);
+                try
+                {
+                    num = stoi(arg);
+                }
+                catch (std::invalid_argument)
+                {
+                    std::cout << "Error in line: " << line << "; " << arg << " is invalid" << std::endl;
+                    exit(-1);
+                }
+                catch (std::out_of_range)
+                {
+                    std::cout << "Error in line: " << line << "; " << arg << " is out of range" << std::endl;
+                    exit(-1);
+                }
             }
-            catch (std::out_of_range)
-            {
-                std::cout << "Error in line: " << line << "; " << arg << " is out of range" << std::endl;
-                exit(-1);
-            }
-        } else {
+        }
+        else
+        {
             stream << std::oct << arg;
             stream >> num;
             stream.clear();

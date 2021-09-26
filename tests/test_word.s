@@ -3,7 +3,8 @@ lbl0:
         .word 0x5
         # .word 04
         .word 077
-        # .word 'a'
+        .word 'a'
+        .word 'b'
 lbl1:
         .word 3, lbl1, 1
         .word 0

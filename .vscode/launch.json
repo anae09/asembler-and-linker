@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/asembler",
-            "args": ["-o", "interrupts.o", "interrupts.s"],
+            "args": ["-o", "test_word.o", "test_word.s"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

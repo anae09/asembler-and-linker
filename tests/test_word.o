@@ -1,19 +1,21 @@
 # wtest
 05 00 
 3F 00 
-03 00 00 04  01 00 
+61 00 
+62 00 
+03 00 00 08  01 00 
 00 00 
 78 56 
 F8 F8 
 # sekcije
 ime	vel.
-wtest	16
+wtest	20
 # tabela simbola
 ime	sekcija	vr	vidlj
-lbl1	wtest	4	L
+lbl1	wtest	8	L
 lbl0	wtest	0	L
 wtest	wtest	0	L
 UND	UND	0	
 # rel.wtest
 offset	tip	simbol
-6	R_DATA_16	wtest
+10	R_DATA_16	wtest
